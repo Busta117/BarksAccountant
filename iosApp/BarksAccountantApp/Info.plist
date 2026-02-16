@@ -9,5 +9,14 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>VAGRundschriftD.ttf</string>
+		<string>Omnes Regular.ttf</string>
+		<string>Omnes Bold.ttf</string>
+		<string>Omnes SemiBold.ttf</string>
+		<string>Omnes Medium.ttf</string>
+		<string>Omnes Light.ttf</string>
+	</array>
 </dict>
 </plist>

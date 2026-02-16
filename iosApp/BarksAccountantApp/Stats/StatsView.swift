@@ -25,7 +25,7 @@ struct StatsView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let error = store.error {
                 VStack(spacing: 12) {
-                    Text(error).foregroundStyle(.secondary)
+                    Text(error).font(.omnes(17)).foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Button("Reintentar") { store.start() }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -91,7 +91,7 @@ struct StatsView: View {
                     StatRow(
                         label: "Ganancia neta",
                         value: formatCurrency(store.netProfit),
-                        valueColor: store.netProfit >= 0 ? .green : .red
+                        valueColor: store.netProfit >= 0 ? .green : Color.barksRed
                     )
                     StatRow(label: "Margen", value: String(format: "%.1f%%", store.marginPercent))
                 }
@@ -146,14 +146,14 @@ struct StatsView: View {
                     ForEach(store.topProducts, id: \.name) { product in
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(product.name).font(.body)
+                                Text(product.name).font(.omnes(17))
                                 Text("\(product.unitsSold) uds")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .font(.omnes(12))
+                                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                             }
                             Spacer()
                             Text(formatCurrency(product.revenue))
-                                .fontWeight(.medium)
+                                .font(.omnes(17, weight: .medium))
                         }
                     }
                 }
@@ -172,14 +172,14 @@ struct StatsView: View {
                     ForEach(store.topClients, id: \.name) { client in
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
-                                Text(client.name).font(.body)
+                                Text(client.name).font(.omnes(17))
                                 Text("\(client.orderCount) pedido\(client.orderCount == 1 ? "" : "s")")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
+                                    .font(.omnes(12))
+                                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                             }
                             Spacer()
                             Text(formatCurrency(client.totalAmount))
-                                .fontWeight(.medium)
+                                .font(.omnes(17, weight: .medium))
                         }
                     }
                 }
@@ -191,8 +191,8 @@ struct StatsView: View {
 
     private var emptyMessage: some View {
         Text("Sin datos para mostrar")
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .font(.omnes(15))
+            .foregroundStyle(Color.barksPrincipal.opacity(0.6))
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
     }
@@ -211,8 +211,8 @@ private struct SectionCard<Content: View>: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(title)
-                .font(.headline)
-                .foregroundStyle(.primary)
+                .font(.omnes(17, weight: .semiBold))
+                .foregroundStyle(Color.barksPrincipal)
             content
         }
         .padding()
@@ -225,17 +225,16 @@ private struct SectionCard<Content: View>: View {
 private struct StatRow: View {
     let label: String
     let value: String
-    var valueColor: Color = .primary
+    var valueColor: Color = Color.barksPrincipal
 
     var body: some View {
         HStack {
             Text(label)
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .font(.omnes(15))
+                .foregroundStyle(Color.barksPrincipal.opacity(0.6))
             Spacer()
             Text(value)
-                .font(.subheadline)
-                .fontWeight(.semibold)
+                .font(.omnes(15, weight: .semiBold))
                 .foregroundStyle(valueColor)
         }
     }

@@ -19,15 +19,16 @@ struct SalesListView: View {
             } else if let error = store.error, store.sales.isEmpty {
                 VStack(spacing: 12) {
                     Text(error)
-                        .foregroundStyle(.secondary)
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Button("Reintentar") {
                         store.reload()
                     }
                 }
             } else if store.sales.isEmpty {
                 Text("No hay ventas")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .font(.vagRundschrift(20))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(store.sales, id: \.id) { sale in
@@ -68,21 +69,22 @@ struct SaleRow: View {
         HStack(spacing: 0) {
             if !sale.isPaid {
                 Rectangle()
-                    .fill(Color.red)
+                    .fill(Color.barksRed)
                     .frame(width: 4)
             }
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(sale.clientName)
-                    .font(.headline)
+                    .font(.omnes(17, weight: .semiBold))
+                    .foregroundStyle(Color.barksPrincipal)
                 HStack {
                     Text(sale.orderDate)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.omnes(15))
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Spacer()
                     Text(String(format: "€%.2f", sale.totalPrice))
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(.omnes(15, weight: .semiBold))
+                        .foregroundStyle(Color.barksPrincipal)
                 }
             }
             .padding(.vertical, 4)

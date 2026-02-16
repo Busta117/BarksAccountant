@@ -78,11 +78,12 @@ struct SaleFormView: View {
             Button(action: { showClientPicker = true }) {
                 HStack {
                     Text(store.clientName.isEmpty ? "Seleccionar cliente" : store.clientName)
-                        .foregroundStyle(store.clientName.isEmpty ? .secondary : .primary)
+                        .font(.omnes(17))
+                        .foregroundStyle(store.clientName.isEmpty ? Color.barksPrincipal.opacity(0.6) : Color.barksPrincipal)
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .foregroundStyle(.secondary)
-                        .font(.caption)
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
+                        .font(.omnes(12))
                 }
             }
         }
@@ -119,10 +120,11 @@ struct SaleFormView: View {
                 HStack {
                     VStack(alignment: .leading) {
                         Text(product.name)
-                            .font(.body)
+                            .font(.omnes(17))
+                            .foregroundStyle(Color.barksPrincipal)
                         Text(String(format: "€%.2f", product.unitPrice))
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                            .font(.omnes(12))
+                            .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     }
 
                     Spacer()
@@ -132,13 +134,14 @@ struct SaleFormView: View {
                             store.decrementQuantity(at: index)
                         }) {
                             Image(systemName: product.quantity <= 1 ? "trash" : "minus.circle")
-                                .foregroundStyle(product.quantity <= 1 ? .red : .blue)
+                                .foregroundStyle(product.quantity <= 1 ? Color.barksRed : Color.barksLightBlue)
                         }
                         .buttonStyle(.borderless)
 
                         Text("\(product.quantity)")
                             .frame(minWidth: 24)
-                            .font(.body.monospacedDigit())
+                            .font(.omnes(17).monospacedDigit())
+                            .foregroundStyle(Color.barksPrincipal)
 
                         Button(action: {
                             store.incrementQuantity(at: index)
@@ -148,8 +151,8 @@ struct SaleFormView: View {
                         .buttonStyle(.borderless)
 
                         Text(String(format: "€%.2f", product.totalPrice))
-                            .font(.body)
-                            .fontWeight(.medium)
+                            .font(.omnes(17, weight: .medium))
+                            .foregroundStyle(Color.barksPrincipal)
                             .frame(minWidth: 60, alignment: .trailing)
                     }
                 }
@@ -165,11 +168,12 @@ struct SaleFormView: View {
         Section {
             HStack {
                 Text("Total")
-                    .fontWeight(.bold)
+                    .font(.omnes(17, weight: .bold))
+                    .foregroundStyle(Color.barksPrincipal)
                 Spacer()
                 Text(String(format: "€%.2f", store.totalPrice))
-                    .fontWeight(.bold)
-                    .font(.title3)
+                    .font(.vagRundschrift(20))
+                    .foregroundStyle(Color.barksPrincipal)
             }
         }
     }
@@ -182,16 +186,16 @@ struct SaleFormView: View {
                         .frame(maxWidth: .infinity)
                 } else {
                     Text("Guardar")
+                        .font(.omnes(17, weight: .semiBold))
                         .frame(maxWidth: .infinity)
-                        .fontWeight(.semibold)
                 }
             }
             .disabled(!store.canSave || store.isSaving)
 
             if let error = store.error {
                 Text(error)
-                    .foregroundStyle(.red)
-                    .font(.caption)
+                    .foregroundStyle(Color.barksRed)
+                    .font(.omnes(12))
             }
         }
     }
@@ -200,8 +204,8 @@ struct SaleFormView: View {
     private var deleteSection: some View {
         if store.isEditing {
             Section {
-                Button("Eliminar Venta", role: .destructive) { store.deleteTapped() }
-                    .frame(maxWidth: .infinity)
+                Button("Eliminar Venta") { store.deleteTapped() }
+                    .buttonStyle(.barksDestructive)
             }
         }
     }

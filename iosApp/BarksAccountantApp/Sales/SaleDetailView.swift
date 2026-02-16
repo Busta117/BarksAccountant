@@ -23,7 +23,8 @@ struct SaleDetailView: View {
                 saleContent(sale)
             } else if let error = store.error {
                 Text(error)
-                    .foregroundStyle(.secondary)
+                    .font(.omnes(17))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
             } else {
                 ProgressView()
             }
@@ -79,22 +80,26 @@ struct SaleDetailView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Text(product.name)
-                                .font(.body)
+                                .font(.omnes(17))
+                                .foregroundStyle(Color.barksPrincipal)
                             Text("€\(String(format: "%.2f", product.unitPrice)) x \(product.quantity)")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .font(.omnes(12))
+                                .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                         }
                         Spacer()
                         Text(String(format: "€%.2f", product.totalPrice))
-                            .fontWeight(.medium)
+                            .font(.omnes(17, weight: .medium))
+                            .foregroundStyle(Color.barksPrincipal)
                     }
                 }
                 HStack {
                     Text("Total")
-                        .fontWeight(.bold)
+                        .font(.omnes(17, weight: .bold))
+                        .foregroundStyle(Color.barksPrincipal)
                     Spacer()
                     Text(String(format: "€%.2f", sale.totalPrice))
-                        .fontWeight(.bold)
+                        .font(.omnes(17, weight: .bold))
+                        .foregroundStyle(Color.barksPrincipal)
                 }
             }
 
@@ -110,15 +115,19 @@ struct SaleDetailView: View {
             Section("Estado") {
                 HStack {
                     Text("Pagado")
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal)
                     Spacer()
                     Image(systemName: sale.isPaid ? "checkmark.circle.fill" : "xmark.circle")
-                        .foregroundStyle(sale.isPaid ? .green : .red)
+                        .foregroundStyle(sale.isPaid ? .green : Color.barksRed)
                 }
                 HStack {
                     Text("Entregado")
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal)
                     Spacer()
                     Image(systemName: sale.isDelivered ? "checkmark.circle.fill" : "xmark.circle")
-                        .foregroundStyle(sale.isDelivered ? .green : .red)
+                        .foregroundStyle(sale.isDelivered ? .green : Color.barksRed)
                 }
             }
 

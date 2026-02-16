@@ -19,15 +19,16 @@ struct PurchasesListView: View {
             } else if let error = store.error, store.purchases.isEmpty {
                 VStack(spacing: 12) {
                     Text(error)
-                        .foregroundStyle(.secondary)
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Button("Reintentar") {
                         store.reload()
                     }
                 }
             } else if store.purchases.isEmpty {
                 Text("No hay compras")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .font(.vagRundschrift(20))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(store.purchases, id: \.id) { purchase in
@@ -36,7 +37,7 @@ struct PurchasesListView: View {
                             NavigationLink(value: purchase.id) {
                                 Text("Editar")
                             }
-                            .tint(.blue)
+                            .tint(Color.barksLightBlue)
                         }
                 }
                 .listStyle(.plain)
@@ -71,21 +72,22 @@ struct PurchaseRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(purchase.title)
-                .font(.headline)
+                .font(.omnes(17, weight: .semiBold))
+                .foregroundStyle(Color.barksPrincipal)
             if let desc = purchase.description_, !desc.isEmpty {
                 Text(desc)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.omnes(15))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     .lineLimit(1)
             }
             HStack {
                 Text(purchase.date)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .font(.omnes(15))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                 Spacer()
                 Text(String(format: "€%.2f", purchase.value))
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                    .font(.omnes(15, weight: .semiBold))
+                    .foregroundStyle(Color.barksPrincipal)
             }
         }
         .padding(.vertical, 4)

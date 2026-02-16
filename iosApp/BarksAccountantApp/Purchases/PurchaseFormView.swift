@@ -58,20 +58,22 @@ struct PurchaseFormView: View {
                     if store.isSaving {
                         ProgressView().frame(maxWidth: .infinity)
                     } else {
-                        Text("Guardar").frame(maxWidth: .infinity).fontWeight(.semibold)
+                        Text("Guardar").frame(maxWidth: .infinity)
                     }
                 }
+                .buttonStyle(.barks)
                 .disabled(!store.canSave || store.isSaving)
 
                 if let error = store.error {
-                    Text(error).foregroundStyle(.red).font(.caption)
+                    Text(error).foregroundStyle(Color.barksRed).font(.omnes(12))
                 }
             }
 
             if store.isEditing {
                 Section {
-                    Button("Eliminar Compra", role: .destructive) { store.deleteTapped() }
+                    Button("Eliminar Compra") { store.deleteTapped() }
                         .frame(maxWidth: .infinity)
+                        .buttonStyle(.barksDestructive)
                 }
             }
         }

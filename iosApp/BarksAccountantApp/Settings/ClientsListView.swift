@@ -16,23 +16,23 @@ struct ClientsListView: View {
                 ProgressView()
             } else if let error = store.error, store.clients.isEmpty {
                 VStack(spacing: 12) {
-                    Text(error).foregroundStyle(.secondary)
+                    Text(error).font(.omnes(17)).foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Button("Reintentar") { store.reload() }
                 }
             } else if store.clients.isEmpty {
                 Text("No hay clientes")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+                    .font(.vagRundschrift(20))
+                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(store.clients, id: \.id) { client in
                     NavigationLink(value: ClientDestination.edit(client.id)) {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text(client.name).font(.body)
+                            Text(client.name).font(.omnes(17)).foregroundStyle(Color.barksPrincipal)
                             if let responsible = client.responsible, !responsible.isEmpty {
                                 Text(responsible)
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                    .font(.omnes(15))
+                                    .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                             }
                         }
                     }

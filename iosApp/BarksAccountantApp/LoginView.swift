@@ -17,8 +17,8 @@ struct LoginView: View {
             Spacer()
 
             Text("BarksAccountant")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+                .font(.vagRundschrift(34))
+                .foregroundStyle(Color.barksPrincipal)
 
             TextField("App ID", text: Binding(
                 get: { store.appId },
@@ -47,7 +47,7 @@ struct LoginView: View {
                         .frame(maxWidth: .infinity)
                 }
             }
-            .buttonStyle(.borderedProminent)
+            .buttonStyle(.barks)
             .disabled(
                 store.appId.trimmingCharacters(in: .whitespaces).isEmpty ||
                 store.personName.trimmingCharacters(in: .whitespaces).isEmpty ||
@@ -68,7 +68,7 @@ struct LoginView: View {
                 Text(error)
                     .foregroundStyle(.white)
                     .padding()
-                    .background(Color.red.cornerRadius(8))
+                    .background(Color.barksRed.cornerRadius(8))
                     .padding()
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }

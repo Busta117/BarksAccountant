@@ -27,17 +27,18 @@ struct SettingsView: View {
             Section {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("App ID")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.omnes(12))
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     Text(serviceLocator.appId)
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        .font(.vagRundschrift(22))
+                        .foregroundStyle(Color.barksPrincipal)
                     Text("Usuario")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.omnes(12))
+                        .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                         .padding(.top, 4)
                     Text(personName)
-                        .font(.body)
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal)
                 }
             }
 
@@ -51,11 +52,12 @@ struct SettingsView: View {
             }
 
             Section {
-                Button(role: .destructive) {
+                Button {
                     showLogoutConfirm = true
                 } label: {
                     Label("Cerrar sesión", systemImage: "rectangle.portrait.and.arrow.right")
                 }
+                .buttonStyle(.barksDestructive)
             }
         }
         .navigationTitle("Settings")

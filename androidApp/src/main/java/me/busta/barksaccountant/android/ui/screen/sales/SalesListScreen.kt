@@ -36,9 +36,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import me.busta.barksaccountant.android.ui.theme.BarksRed
 import me.busta.barksaccountant.di.ServiceLocator
 import me.busta.barksaccountant.feature.sales.list.SalesListMessage
 import me.busta.barksaccountant.feature.sales.list.SalesListStore
@@ -146,7 +146,7 @@ private fun SaleRow(sale: Sale, onClick: () -> Unit) {
                 modifier = Modifier
                     .width(4.dp)
                     .fillMaxHeight()
-                    .background(Color.Red)
+                    .background(BarksRed)
             )
         }
 

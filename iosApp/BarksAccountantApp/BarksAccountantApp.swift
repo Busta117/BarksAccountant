@@ -41,6 +41,7 @@ struct BarksAccountantApp: App {
                     }
                 }
             }
+            .tint(Color.barksLightBlue)
             .onAppear { appStore.start() }
             .onChange(of: appStore.appId) { _, newAppId in
                 if let appId = newAppId {

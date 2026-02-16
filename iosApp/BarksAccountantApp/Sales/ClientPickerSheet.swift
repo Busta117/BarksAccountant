@@ -14,7 +14,8 @@ struct ClientPickerSheet: View {
                     dismiss()
                 }) {
                     Text(client.name)
-                        .foregroundStyle(.primary)
+                        .font(.omnes(17))
+                        .foregroundStyle(Color.barksPrincipal)
                 }
             }
             .navigationTitle("Seleccionar Cliente")

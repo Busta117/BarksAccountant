@@ -15,10 +15,12 @@ struct ProductPickerSheet: View {
                 }) {
                     HStack {
                         Text(product.name)
-                            .foregroundStyle(.primary)
+                            .font(.omnes(17))
+                            .foregroundStyle(Color.barksPrincipal)
                         Spacer()
                         Text(String(format: "€%.2f", product.unitPrice))
-                            .foregroundStyle(.secondary)
+                            .font(.omnes(15))
+                            .foregroundStyle(Color.barksPrincipal.opacity(0.6))
                     }
                 }
             }
