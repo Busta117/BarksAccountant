@@ -35,9 +35,7 @@ class MainActivity : ComponentActivity() {
                     appStore.dispatch(AppMessage.CheckAuth)
                 }
 
-                LaunchedEffect(appState.appId) {
-                    appState.appId?.let { serviceLocator.appId = it }
-                }
+                appState.appId?.let { serviceLocator.appId = it }
 
                 DisposableEffect(Unit) {
                     onDispose { appStore.dispose() }

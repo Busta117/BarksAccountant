@@ -2,6 +2,7 @@ package me.busta.barksaccountant.android.ui.screen
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.LocalMall
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -28,6 +29,7 @@ import me.busta.barksaccountant.android.ui.screen.purchases.PurchasesListScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleDetailScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleFormScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SalesListScreen
+import me.busta.barksaccountant.android.ui.screen.stats.StatsScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientFormScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientsListScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ProductFormScreen
@@ -44,6 +46,7 @@ private data class TabItem(
 private val tabs = listOf(
     TabItem("sales_list", "Ventas", Icons.Default.ShoppingCart),
     TabItem("purchases_list", "Compras", Icons.Default.LocalMall),
+    TabItem("stats", "Stats", Icons.Default.BarChart),
     TabItem("settings", "Settings", Icons.Default.Settings)
 )
 
@@ -141,6 +144,11 @@ fun MainScreen(
                     onSaved = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
                 )
+            }
+
+            // Stats
+            composable("stats") {
+                StatsScreen(serviceLocator = serviceLocator)
             }
 
             // Settings

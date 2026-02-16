@@ -18,6 +18,11 @@ struct MainTabView: View {
                     Label("Compras", systemImage: "bag.fill")
                 }
 
+            StatsTab(serviceLocator: serviceLocator)
+                .tabItem {
+                    Label("Stats", systemImage: "chart.bar.fill")
+                }
+
             SettingsTab(serviceLocator: serviceLocator, personName: personName, onLogout: onLogout)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape.fill")
@@ -44,6 +49,16 @@ struct PurchasesTab: View {
     var body: some View {
         NavigationStack {
             PurchasesListView(serviceLocator: serviceLocator, personName: personName)
+        }
+    }
+}
+
+struct StatsTab: View {
+    let serviceLocator: ServiceLocator
+
+    var body: some View {
+        NavigationStack {
+            StatsView(serviceLocator: serviceLocator)
         }
     }
 }

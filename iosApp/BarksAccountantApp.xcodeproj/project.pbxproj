@@ -38,6 +38,8 @@
 		B10050 /* ClientsListStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10050 /* ClientsListStoreWrapper.swift */; };
 		B10051 /* ClientFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10051 /* ClientFormView.swift */; };
 		B10052 /* ClientFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10052 /* ClientFormStoreWrapper.swift */; };
+		B10053 /* StatsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10053 /* StatsView.swift */; };
+		B10054 /* StatsStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10054 /* StatsStoreWrapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +56,8 @@
 		A10050 /* ClientsListStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientsListStoreWrapper.swift; sourceTree = "<group>"; };
 		A10051 /* ClientFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormView.swift; sourceTree = "<group>"; };
 		A10052 /* ClientFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormStoreWrapper.swift; sourceTree = "<group>"; };
+		A10053 /* StatsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsView.swift; sourceTree = "<group>"; };
+		A10054 /* StatsStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatsStoreWrapper.swift; sourceTree = "<group>"; };
 		B10001 /* BarksAccountantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarksAccountantApp.swift; sourceTree = "<group>"; };
 		B10004 /* FirestoreBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBridge.swift; sourceTree = "<group>"; };
 		B10005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -106,6 +110,7 @@
 				B10013 /* MainTabView.swift */,
 				D10004 /* Sales */,
 				D10005 /* Purchases */,
+				D10007 /* Stats */,
 				D10006 /* Settings */,
 				B10005 /* Assets.xcassets */,
 				B10006 /* Info.plist */,
@@ -162,6 +167,15 @@
 				A10052 /* ClientFormStoreWrapper.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		D10007 /* Stats */ = {
+			isa = PBXGroup;
+			children = (
+				A10053 /* StatsView.swift */,
+				A10054 /* StatsStoreWrapper.swift */,
+			);
+			path = Stats;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -310,6 +324,8 @@
 				B10050 /* ClientsListStoreWrapper.swift in Sources */,
 				B10051 /* ClientFormView.swift in Sources */,
 				B10052 /* ClientFormStoreWrapper.swift in Sources */,
+				B10053 /* StatsView.swift in Sources */,
+				B10054 /* StatsStoreWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
