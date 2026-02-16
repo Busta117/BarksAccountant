@@ -1,0 +1,32 @@
+# Gradle
+.gradle/
+build/
+**/build/
+
+# Kotlin
+.kotlin/
+
+# Local config (contains machine-specific SDK paths)
+local.properties
+
+# IDE - Android Studio / IntelliJ
+.idea/
+*.iml
+
+# IDE - Xcode
+iosApp/**/*.xcodeproj/project.xcworkspace/
+iosApp/**/*.xcodeproj/xcuserdata/
+xcuserdata/
+
+# Xcode DerivedData
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Firebase (contains project-specific keys)
+androidApp/google-services.json
+iosApp/**/GoogleService-Info.plist
+
+# Claude Code
+.claude/
