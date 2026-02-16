@@ -9,6 +9,7 @@
 		- nuevo/editar venta (con opción de eliminar en edición)
 	- lista de compras
 		- nuevo/editar compra (con opción de eliminar en edición)
+	- stats (dashboard de rendimiento del negocio)
 	- settings
 		- lista productos
 			- editar/agregar producto (con opción de eliminar en edición)
@@ -21,7 +22,7 @@
 **logic**: el App ID y el nombre se guardan en local y se ponen por defecto si existen. El botón login no se activa hasta que ambos campos tengan contenido. Cuando presiona login, valida que el App ID exista en la colección `app_ids` de Firestore. Si existe, guarda ambos valores en local para recuperarlos en el futuro. Si el App ID no existe, muestra un mensaje toast/snackbar diciendo que no existe. Si existe, cambia el root de la app para mostrar el tabbar. El App ID determina el scope de datos (todos los datos se guardan bajo `apps/{appId}/`).
 
 ### Main Tabbar
-El tabbar tiene 3 vistas: ventas, compras y settings, cada uno con su vista root que voy a describir a continuación, cada root tiene su propia navegación en forma de push y pop, quiere decir que el tabbar siempre está visible.
+El tabbar tiene 4 vistas: ventas, compras, stats y settings, cada uno con su vista root que voy a describir a continuación, cada root tiene su propia navegación en forma de push y pop, quiere decir que el tabbar siempre está visible.
 
 ### Ventas tabbar root (Listado de ventas)
 La vista root del tabbar es el listado de ventas donde cada venta muestra un poco de detalle: el nombre del cliente, la fecha y el valor. A cada celda, si el pedido no se ha pagado, se le pone una línea vertical al lado izquierdo de toda la celda de color rojo.
@@ -31,14 +32,13 @@ Cuando toca cada uno de los pedidos va a la vista del detalle de pedido, en form
 
 ### Detalle de Venta
 El detalle de venta tiene un título "Detalle de Venta" con un botón a la derecha que sea un icono de lápiz para editarlo, en forma de navigation bar.
-El detalle tendrá: nombre del cliente, responsable, listado de los nombres de productos vendidos con su cantidad y precio unitario, precio total del pedido, fecha de pedido, fecha de entrega, y si está pago o no.
+El detalle tendrá: nombre del cliente, listado de los nombres de productos vendidos con su cantidad y precio unitario, precio total del pedido, fecha de pedido, fecha de entrega, y si está pago o no.
 Al final 3 botones: uno para marcarlo como pago (con confirmación), otro para marcar como entregado (con confirmación, modifica la fecha de entrega), y otro para exportar (pendiente).
 El botón de editar va a la misma vista de creación pero con los datos llenos.
 
 ### nuevo/editar venta
-Título en navigation bar: "Nueva Venta" o "Editar Venta" según corresponda. Formulario con:
+Título en navigation bar: "Nueva Venta" o "Editar Venta" según corresponda. El ID de la venta es auto-incremental con formato `YYYY-NNNN` (e.g., `2026-0001`), generado automáticamente al guardar consultando las ventas existentes en Firestore. Formulario con:
 - **nombre cliente**: obligatorio, selector que muestra ventana emergente con listado de clientes (solo nombre).
-- **responsable**: opcional.
 - **fecha pedido**: selector de solo día, por defecto el día actual.
 - **fecha entrega**: opcional, selector de solo día.
 - **productos**: lista embebida con botones +/- para cantidad. Si cantidad es 1, el botón - se convierte en eliminar (icono de trash). A la derecha de la cantidad aparece el precio final (cantidad × precio unitario). Debajo hay un botón "Agregar Producto" que muestra ventana emergente con productos disponibles.
@@ -56,10 +56,26 @@ Cada celda tiene la opción de swipe-to-edit (iOS) o simplemente tap (ambas plat
 Título: "Editar Compra" o "Nueva Compra" según corresponda. Formulario con:
 - **titulo**: obligatorio.
 - **descripción**: opcional.
-- **valor**: obligatorio (numérico, mayor a 0).
+- **valor (€)**: obligatorio (numérico decimal, mayor a 0). Soporta separador decimal coma.
 - **fecha**: obligatorio, selector de día, por defecto la fecha actual.
 - **guardar**: guarda en Firestore y vuelve atrás.
 - **eliminar** (solo en modo edición): botón rojo debajo de guardar, pide confirmación con alert/dialog, al confirmar elimina el registro y vuelve atrás.
+
+### Stats tabbar root (Dashboard de rendimiento)
+La vista root de este tab muestra un dashboard con indicadores del negocio. Título "Stats" en navigation bar. Los datos se cargan una vez desde Firestore (ventas y compras) y se filtran en el cliente.
+
+**Filtros:**
+- **Año**: selector obligatorio. Muestra los años disponibles basándose en las fechas de las ventas existentes. Por defecto el año actual.
+- **Mes**: selector opcional. Opciones: "Todos" (sin filtro de mes, muestra el año completo) + los 12 meses en español (Enero–Diciembre). Al cambiar de año se resetea a "Todos".
+
+**Secciones:**
+1. **Resumen**: ventas totales (€), compras totales (€), ganancia neta (verde si positiva, rojo si negativa), margen (%).
+2. **Indicadores**: cantidad de ventas, ticket promedio (€), pendiente de pago (€), sin entregar (cantidad).
+3. **Desglose mensual** (solo visible cuando no hay filtro de mes): lista de meses con ventas y su total. Solo muestra meses que tienen datos.
+4. **Productos más vendidos**: nombre del producto, unidades vendidas, ingresos (€). Ordenados por cantidad descendente.
+5. **Principales clientes**: nombre del cliente, cantidad de pedidos, monto total (€). Ordenados por monto descendente.
+
+Cada sección muestra su título y "Sin datos para mostrar" si no tiene elementos.
 
 ### settings tabbar root
 El root de este tab es un listado de opciones. La primera sección muestra el App ID (grande) y el nombre del usuario logueado. Las opciones son: Productos, Clientes, y Cerrar sesión.
@@ -74,7 +90,7 @@ Listado con título "Productos" en navigation bar con botón + a la derecha. Mue
 ### agregar/editar producto
 Título: "Nuevo Producto" o "Editar Producto" según corresponda. Formulario con:
 - **nombre**: obligatorio.
-- **precio**: obligatorio (numérico, mayor a 0).
+- **precio (€)**: obligatorio (numérico decimal, mayor a 0). Soporta separador decimal coma (localización española) que se normaliza a punto internamente.
 - **guardar**: guarda en Firestore y vuelve atrás.
 - **eliminar** (solo en modo edición): botón rojo debajo de guardar, pide confirmación, al confirmar elimina de Firestore y vuelve atrás.
 
