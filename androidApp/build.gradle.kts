@@ -47,5 +47,6 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
 
     implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
 }

@@ -172,6 +172,9 @@ private fun SaleContent(
         SectionHeader("Cliente")
         LabeledRow("Nombre", sale.clientName)
         sale.responsible?.let { LabeledRow("Responsable", it) }
+        if (sale.createdBy.isNotEmpty()) {
+            LabeledRow("Creado por", sale.createdBy)
+        }
 
         Spacer(Modifier.height(16.dp))
         HorizontalDivider()

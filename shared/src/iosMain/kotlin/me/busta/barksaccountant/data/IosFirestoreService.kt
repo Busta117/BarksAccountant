@@ -17,6 +17,12 @@ interface FirestoreServiceBridge {
         onError: (String) -> Unit
     )
 
+    fun getDocuments(
+        collection: String,
+        onSuccess: (List<Map<String, Any>>) -> Unit,
+        onError: (String) -> Unit
+    )
+
     fun setDocument(
         collection: String,
         documentId: String,
@@ -42,6 +48,15 @@ class IosFirestoreService(
             bridge.getDocument(
                 collection = collection,
                 documentId = documentId,
+                onSuccess = { continuation.resume(it) },
+                onError = { continuation.resumeWithException(Exception(it)) }
+            )
+        }
+
+    override suspend fun getDocuments(collection: String): List<Map<String, Any>> =
+        suspendCoroutine { continuation ->
+            bridge.getDocuments(
+                collection = collection,
                 onSuccess = { continuation.resume(it) },
                 onError = { continuation.resumeWithException(Exception(it)) }
             )

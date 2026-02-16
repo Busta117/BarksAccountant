@@ -15,14 +15,15 @@ struct SaleFormView: View {
     @State private var hasDeliveryDate = false
     @Environment(\.dismiss) private var dismiss
 
-    init(serviceLocator: ServiceLocator, saleId: String?, onSaved: @escaping () -> Void) {
+    init(serviceLocator: ServiceLocator, saleId: String?, personName: String, onSaved: @escaping () -> Void) {
         self.serviceLocator = serviceLocator
         self.saleId = saleId
         self.onSaved = onSaved
         _store = State(initialValue: SaleFormStoreWrapper(
             saleRepository: serviceLocator.saleRepository,
             productRepository: serviceLocator.productRepository,
-            clientRepository: serviceLocator.clientRepository
+            clientRepository: serviceLocator.clientRepository,
+            personName: personName
         ))
     }
 

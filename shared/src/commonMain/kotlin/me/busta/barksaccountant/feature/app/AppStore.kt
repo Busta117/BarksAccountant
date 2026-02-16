@@ -9,45 +9,70 @@ class AppStore(
 ) : Store<AppState, AppMessage, AppEffect>(AppState()) {
 
     companion object {
-        private const val USER_ID_KEY = "user_id"
+        private const val APP_ID_KEY = "app_id"
+        private const val PERSON_NAME_KEY = "person_name"
     }
 
     override fun reduce(state: AppState, message: AppMessage): Next<AppState, AppEffect> {
         return when (message) {
             is AppMessage.CheckAuth -> Next.withEffects(
                 state.copy(isCheckingAuth = true),
-                AppEffect.CheckStoredUser
+                AppEffect.CheckStoredAuth
             )
             is AppMessage.AuthChecked -> {
-                val userId = message.userId
-                if (userId != null) {
-                    Next.just(state.copy(isLoggedIn = true, userId = userId, isCheckingAuth = false))
+                val appId = message.appId
+                val personName = message.personName
+                if (appId != null && personName != null) {
+                    Next.just(state.copy(
+                        isLoggedIn = true,
+                        appId = appId,
+                        personName = personName,
+                        isCheckingAuth = false
+                    ))
                 } else {
-                    Next.just(state.copy(isLoggedIn = false, userId = null, isCheckingAuth = false))
+                    Next.just(state.copy(
+                        isLoggedIn = false,
+                        appId = null,
+                        personName = null,
+                        isCheckingAuth = false
+                    ))
                 }
             }
             is AppMessage.LoggedIn -> Next.withEffects(
-                state.copy(isLoggedIn = true, userId = message.userId, isCheckingAuth = false),
-                AppEffect.SaveUserId(message.userId)
+                state.copy(
+                    isLoggedIn = true,
+                    appId = message.appId,
+                    personName = message.personName,
+                    isCheckingAuth = false
+                ),
+                AppEffect.SaveAuth(message.appId, message.personName)
             )
             is AppMessage.LoggedOut -> Next.withEffects(
-                state.copy(isLoggedIn = false, userId = null, isCheckingAuth = false),
-                AppEffect.ClearUserId
+                state.copy(
+                    isLoggedIn = false,
+                    appId = null,
+                    personName = null,
+                    isCheckingAuth = false
+                ),
+                AppEffect.ClearAuth
             )
         }
     }
 
     override suspend fun handleEffect(effect: AppEffect) {
         when (effect) {
-            is AppEffect.CheckStoredUser -> {
-                val storedUserId = localStorage.getString(USER_ID_KEY)
-                dispatch(AppMessage.AuthChecked(storedUserId))
+            is AppEffect.CheckStoredAuth -> {
+                val storedAppId = localStorage.getString(APP_ID_KEY)
+                val storedPersonName = localStorage.getString(PERSON_NAME_KEY)
+                dispatch(AppMessage.AuthChecked(storedAppId, storedPersonName))
             }
-            is AppEffect.SaveUserId -> {
-                localStorage.putString(USER_ID_KEY, effect.userId)
+            is AppEffect.SaveAuth -> {
+                localStorage.putString(APP_ID_KEY, effect.appId)
+                localStorage.putString(PERSON_NAME_KEY, effect.personName)
             }
-            is AppEffect.ClearUserId -> {
-                localStorage.remove(USER_ID_KEY)
+            is AppEffect.ClearAuth -> {
+                localStorage.remove(APP_ID_KEY)
+                localStorage.remove(PERSON_NAME_KEY)
             }
         }
     }

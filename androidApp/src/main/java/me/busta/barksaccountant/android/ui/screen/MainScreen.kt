@@ -49,6 +49,7 @@ private val tabs = listOf(
 @Composable
 fun MainScreen(
     serviceLocator: ServiceLocator,
+    personName: String,
     onLogout: () -> Unit
 ) {
     val navController = rememberNavController()
@@ -123,6 +124,7 @@ fun MainScreen(
                 SaleFormScreen(
                     serviceLocator = serviceLocator,
                     saleId = saleId,
+                    personName = personName,
                     onSaved = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
                 )

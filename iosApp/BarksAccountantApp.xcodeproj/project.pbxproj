@@ -22,6 +22,9 @@
 		A10019 /* SaleFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10019 /* SaleFormStoreWrapper.swift */; };
 		A10020 /* ClientPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10020 /* ClientPickerSheet.swift */; };
 		A10021 /* ProductPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B10021 /* ProductPickerSheet.swift */; };
+		A10030 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B10030 /* GoogleService-Info.plist */; };
+		A10031 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = P10002 /* FirebaseAnalytics */; };
+		A10032 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = P10003 /* FirebaseFirestore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +44,7 @@
 		B10019 /* SaleFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SaleFormStoreWrapper.swift; sourceTree = "<group>"; };
 		B10020 /* ClientPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientPickerSheet.swift; sourceTree = "<group>"; };
 		B10021 /* ProductPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductPickerSheet.swift; sourceTree = "<group>"; };
+		B10030 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B10099 /* BarksAccountantApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarksAccountantApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -49,6 +53,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A10031 /* FirebaseAnalytics in Frameworks */,
+				A10032 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,6 +81,7 @@
 				D10004 /* Sales */,
 				B10005 /* Assets.xcassets */,
 				B10006 /* Info.plist */,
+				B10030 /* GoogleService-Info.plist */,
 			);
 			path = BarksAccountantApp;
 			sourceTree = "<group>";
@@ -120,6 +127,10 @@
 			dependencies = (
 			);
 			name = BarksAccountantApp;
+			packageProductDependencies = (
+				P10002 /* FirebaseAnalytics */,
+				P10003 /* FirebaseFirestore */,
+			);
 			productName = BarksAccountantApp;
 			productReference = B10099 /* BarksAccountantApp.app */;
 			productType = "com.apple.product-type.application";
@@ -148,6 +159,9 @@
 				Base,
 			);
 			mainGroup = D10001;
+			packageReferences = (
+				P10001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			productRefGroup = D10003 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -163,6 +177,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A10005 /* Assets.xcassets in Resources */,
+				A10030 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -377,6 +392,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		P10001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		P10002 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = P10001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		P10003 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = P10001 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F10001 /* Project object */;
 }

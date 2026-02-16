@@ -1,9 +1,9 @@
 package me.busta.barksaccountant.data.repository
 
-class InMemoryUserRepository : UserRepository {
-    private val validUsers = mutableListOf("admin", "user1", "busta")
+class InMemoryAppIdRepository : AppIdRepository {
+    private val validAppIds = listOf("barksnbites")
 
-    override suspend fun validateUser(userId: String): Boolean {
-        return validUsers.any { it.equals(userId, ignoreCase = true) }
+    override suspend fun validateAppId(appId: String): Boolean {
+        return validAppIds.any { it.equals(appId, ignoreCase = true) }
     }
 }

@@ -60,6 +60,7 @@ import java.util.TimeZone
 fun SaleFormScreen(
     serviceLocator: ServiceLocator,
     saleId: String?,
+    personName: String,
     onSaved: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -67,7 +68,8 @@ fun SaleFormScreen(
         SaleFormStore(
             saleRepository = serviceLocator.saleRepository,
             productRepository = serviceLocator.productRepository,
-            clientRepository = serviceLocator.clientRepository
+            clientRepository = serviceLocator.clientRepository,
+            createdBy = personName
         )
     }
     val state by store.state.collectAsState()

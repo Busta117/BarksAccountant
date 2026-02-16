@@ -4,7 +4,8 @@ import Shared
 @Observable
 final class AppStoreWrapper {
     private(set) var isLoggedIn: Bool = false
-    private(set) var userId: String? = nil
+    private(set) var appId: String? = nil
+    private(set) var personName: String? = nil
     private(set) var isCheckingAuth: Bool = true
 
     private let store: AppStore
@@ -22,15 +23,16 @@ final class AppStoreWrapper {
             callback: { [weak self] state in
                 guard let self else { return }
                 self.isLoggedIn = state.isLoggedIn
-                self.userId = state.userId
+                self.appId = state.appId
+                self.personName = state.personName
                 self.isCheckingAuth = state.isCheckingAuth
             }
         )
         store.dispatch(message: AppMessageCheckAuth.shared)
     }
 
-    func onLoggedIn(userId: String) {
-        store.dispatch(message: AppMessageLoggedIn(userId: userId))
+    func onLoggedIn(appId: String, personName: String) {
+        store.dispatch(message: AppMessageLoggedIn(appId: appId, personName: personName))
     }
 
     func onLoggedOut() {

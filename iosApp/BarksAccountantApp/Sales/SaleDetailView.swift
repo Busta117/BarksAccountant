@@ -4,13 +4,15 @@ import Shared
 struct SaleDetailView: View {
     let serviceLocator: ServiceLocator
     let saleId: String
+    let personName: String
     var onSaleUpdated: () -> Void
     @State private var store: SaleDetailStoreWrapper
     @State private var showEditForm = false
 
-    init(serviceLocator: ServiceLocator, saleId: String, onSaleUpdated: @escaping () -> Void) {
+    init(serviceLocator: ServiceLocator, saleId: String, personName: String, onSaleUpdated: @escaping () -> Void) {
         self.serviceLocator = serviceLocator
         self.saleId = saleId
+        self.personName = personName
         self.onSaleUpdated = onSaleUpdated
         _store = State(initialValue: SaleDetailStoreWrapper(saleRepository: serviceLocator.saleRepository))
     }
@@ -35,7 +37,7 @@ struct SaleDetailView: View {
             }
         }
         .navigationDestination(isPresented: $showEditForm) {
-            SaleFormView(serviceLocator: serviceLocator, saleId: saleId, onSaved: {
+            SaleFormView(serviceLocator: serviceLocator, saleId: saleId, personName: personName, onSaved: {
                 store.start(saleId: saleId)
                 onSaleUpdated()
             })
@@ -68,6 +70,9 @@ struct SaleDetailView: View {
                 LabeledContent("Nombre", value: sale.clientName)
                 if let responsible = sale.responsible {
                     LabeledContent("Responsable", value: responsible)
+                }
+                if !sale.createdBy.isEmpty {
+                    LabeledContent("Creado por", value: sale.createdBy)
                 }
             }
 

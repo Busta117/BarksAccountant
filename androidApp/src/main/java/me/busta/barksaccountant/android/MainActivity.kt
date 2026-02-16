@@ -35,6 +35,10 @@ class MainActivity : ComponentActivity() {
                     appStore.dispatch(AppMessage.CheckAuth)
                 }
 
+                LaunchedEffect(appState.appId) {
+                    appState.appId?.let { serviceLocator.appId = it }
+                }
+
                 DisposableEffect(Unit) {
                     onDispose { appStore.dispose() }
                 }
@@ -51,14 +55,15 @@ class MainActivity : ComponentActivity() {
                     appState.isLoggedIn -> {
                         MainScreen(
                             serviceLocator = serviceLocator,
+                            personName = appState.personName ?: "",
                             onLogout = { appStore.dispatch(AppMessage.LoggedOut) }
                         )
                     }
                     else -> {
                         LoginScreen(
                             serviceLocator = serviceLocator,
-                            onLoginSuccess = { userId ->
-                                appStore.dispatch(AppMessage.LoggedIn(userId))
+                            onLoginSuccess = { appId, personName ->
+                                appStore.dispatch(AppMessage.LoggedIn(appId, personName))
                             }
                         )
                     }

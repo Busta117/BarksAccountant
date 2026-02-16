@@ -3,12 +3,11 @@ import Shared
 
 struct LoginView: View {
     @State private var store: LoginStoreWrapper
-    var onLoginSuccess: (String) -> Void
+    var onLoginSuccess: (String, String) -> Void
 
-    init(serviceLocator: ServiceLocator, storedUserId: String?, onLoginSuccess: @escaping (String) -> Void) {
+    init(serviceLocator: ServiceLocator, onLoginSuccess: @escaping (String, String) -> Void) {
         _store = State(initialValue: LoginStoreWrapper(
-            userRepository: serviceLocator.userRepository,
-            initialUserId: storedUserId ?? ""
+            appIdRepository: serviceLocator.appIdRepository
         ))
         self.onLoginSuccess = onLoginSuccess
     }
@@ -21,13 +20,20 @@ struct LoginView: View {
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            TextField("User ID", text: Binding(
-                get: { store.userId },
-                set: { store.userIdChanged($0) }
+            TextField("App ID", text: Binding(
+                get: { store.appId },
+                set: { store.appIdChanged($0) }
             ))
             .textFieldStyle(.roundedBorder)
             .autocapitalization(.none)
             .autocorrectionDisabled()
+            .padding(.horizontal, 40)
+
+            TextField("Nombre", text: Binding(
+                get: { store.personName },
+                set: { store.personNameChanged($0) }
+            ))
+            .textFieldStyle(.roundedBorder)
             .padding(.horizontal, 40)
 
             Button(action: {
@@ -42,7 +48,11 @@ struct LoginView: View {
                 }
             }
             .buttonStyle(.borderedProminent)
-            .disabled(store.userId.trimmingCharacters(in: .whitespaces).isEmpty || store.isLoading)
+            .disabled(
+                store.appId.trimmingCharacters(in: .whitespaces).isEmpty ||
+                store.personName.trimmingCharacters(in: .whitespaces).isEmpty ||
+                store.isLoading
+            )
             .padding(.horizontal, 40)
 
             Spacer()
@@ -50,7 +60,7 @@ struct LoginView: View {
         .onAppear { store.start() }
         .onChange(of: store.loginSuccess) { _, success in
             if success {
-                onLoginSuccess(store.userId)
+                onLoginSuccess(store.appId, store.personName)
             }
         }
         .overlay(alignment: .bottom) {

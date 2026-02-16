@@ -36,10 +36,10 @@ import me.busta.barksaccountant.feature.login.LoginStore
 @Composable
 fun LoginScreen(
     serviceLocator: ServiceLocator,
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (appId: String, personName: String) -> Unit
 ) {
     val store = remember {
-        LoginStore(userRepository = serviceLocator.userRepository)
+        LoginStore(appIdRepository = serviceLocator.appIdRepository)
     }
     val state by store.state.collectAsState()
 
@@ -49,7 +49,7 @@ fun LoginScreen(
 
     LaunchedEffect(state.loginSuccess) {
         if (state.loginSuccess) {
-            onLoginSuccess(state.userId)
+            onLoginSuccess(state.appId, state.personName)
         }
     }
 
@@ -69,9 +69,19 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             OutlinedTextField(
-                value = state.userId,
-                onValueChange = { store.dispatch(LoginMessage.UserIdChanged(it)) },
-                label = { Text("User ID") },
+                value = state.appId,
+                onValueChange = { store.dispatch(LoginMessage.AppIdChanged(it)) },
+                label = { Text("App ID") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = state.personName,
+                onValueChange = { store.dispatch(LoginMessage.PersonNameChanged(it)) },
+                label = { Text("Nombre") },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -80,7 +90,9 @@ fun LoginScreen(
 
             Button(
                 onClick = { store.dispatch(LoginMessage.LoginTapped) },
-                enabled = state.userId.trim().isNotEmpty() && !state.isLoading,
+                enabled = state.appId.trim().isNotEmpty() &&
+                        state.personName.trim().isNotEmpty() &&
+                        !state.isLoading,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state.isLoading) {

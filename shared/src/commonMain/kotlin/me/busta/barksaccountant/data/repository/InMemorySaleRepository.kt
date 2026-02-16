@@ -20,7 +20,8 @@ class InMemorySaleRepository : SaleRepository {
             ),
             totalPrice = 95.0,
             isPaid = false,
-            isDelivered = false
+            isDelivered = false,
+            createdBy = "Santiago"
         ),
         Sale(
             id = "s2",
@@ -33,7 +34,8 @@ class InMemorySaleRepository : SaleRepository {
             ),
             totalPrice = 45.0,
             isPaid = true,
-            isDelivered = true
+            isDelivered = true,
+            createdBy = "Santiago"
         ),
         Sale(
             id = "s3",
@@ -47,7 +49,8 @@ class InMemorySaleRepository : SaleRepository {
             ),
             totalPrice = 110.0,
             isPaid = false,
-            isDelivered = false
+            isDelivered = false,
+            createdBy = "Carlos"
         )
     )
 

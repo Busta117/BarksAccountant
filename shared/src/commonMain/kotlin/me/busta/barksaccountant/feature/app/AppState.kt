@@ -2,6 +2,7 @@ package me.busta.barksaccountant.feature.app
 
 data class AppState(
     val isLoggedIn: Boolean = false,
-    val userId: String? = null,
+    val appId: String? = null,
+    val personName: String? = null,
     val isCheckingAuth: Boolean = true
 )

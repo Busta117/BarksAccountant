@@ -1,26 +1,28 @@
 package me.busta.barksaccountant.feature.login
 
-import me.busta.barksaccountant.data.repository.UserRepository
+import me.busta.barksaccountant.data.repository.AppIdRepository
 import me.busta.barksaccountant.store.Next
 import me.busta.barksaccountant.store.Store
 
 class LoginStore(
-    private val userRepository: UserRepository,
-    initialUserId: String = ""
-) : Store<LoginState, LoginMessage, LoginEffect>(LoginState(userId = initialUserId)) {
+    private val appIdRepository: AppIdRepository
+) : Store<LoginState, LoginMessage, LoginEffect>(LoginState()) {
 
     override fun reduce(state: LoginState, message: LoginMessage): Next<LoginState, LoginEffect> {
         return when (message) {
-            is LoginMessage.UserIdChanged -> Next.just(
-                state.copy(userId = message.text, error = null)
+            is LoginMessage.AppIdChanged -> Next.just(
+                state.copy(appId = message.text, error = null)
+            )
+            is LoginMessage.PersonNameChanged -> Next.just(
+                state.copy(personName = message.text, error = null)
             )
             is LoginMessage.LoginTapped -> {
-                if (state.userId.isBlank()) {
+                if (state.appId.isBlank() || state.personName.isBlank()) {
                     Next.just(state)
                 } else {
                     Next.withEffects(
                         state.copy(isLoading = true, error = null),
-                        LoginEffect.ValidateUser(state.userId)
+                        LoginEffect.ValidateAppId(state.appId, state.personName)
                     )
                 }
             }
@@ -35,13 +37,13 @@ class LoginStore(
 
     override suspend fun handleEffect(effect: LoginEffect) {
         when (effect) {
-            is LoginEffect.ValidateUser -> {
+            is LoginEffect.ValidateAppId -> {
                 try {
-                    val isValid = userRepository.validateUser(effect.userId)
+                    val isValid = appIdRepository.validateAppId(effect.appId)
                     if (isValid) {
-                        dispatch(LoginMessage.LoginSuccess(effect.userId))
+                        dispatch(LoginMessage.LoginSuccess(effect.appId, effect.personName))
                     } else {
-                        dispatch(LoginMessage.LoginFailed("El usuario no existe"))
+                        dispatch(LoginMessage.LoginFailed("El ID de app no existe"))
                     }
                 } catch (e: Exception) {
                     dispatch(LoginMessage.LoginFailed(e.message ?: "Error desconocido"))

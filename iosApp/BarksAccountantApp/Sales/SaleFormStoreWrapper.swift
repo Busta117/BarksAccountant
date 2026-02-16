@@ -20,11 +20,12 @@ final class SaleFormStoreWrapper {
     private let store: SaleFormStore
     private var collector: FlowCollector<SaleFormState>?
 
-    init(saleRepository: SaleRepository, productRepository: ProductRepository, clientRepository: ClientRepository) {
+    init(saleRepository: SaleRepository, productRepository: ProductRepository, clientRepository: ClientRepository, personName: String) {
         self.store = SaleFormStore(
             saleRepository: saleRepository,
             productRepository: productRepository,
-            clientRepository: clientRepository
+            clientRepository: clientRepository,
+            createdBy: personName
         )
     }
 

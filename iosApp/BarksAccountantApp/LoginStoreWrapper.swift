@@ -3,7 +3,8 @@ import Shared
 
 @Observable
 final class LoginStoreWrapper {
-    private(set) var userId: String = ""
+    private(set) var appId: String = ""
+    private(set) var personName: String = ""
     private(set) var isLoading: Bool = false
     private(set) var error: String? = nil
     private(set) var loginSuccess: Bool = false
@@ -11,8 +12,8 @@ final class LoginStoreWrapper {
     private let store: LoginStore
     private var collector: FlowCollector<LoginState>?
 
-    init(userRepository: UserRepository, initialUserId: String = "") {
-        self.store = LoginStore(userRepository: userRepository, initialUserId: initialUserId)
+    init(appIdRepository: AppIdRepository) {
+        self.store = LoginStore(appIdRepository: appIdRepository)
     }
 
     func start() {
@@ -20,7 +21,8 @@ final class LoginStoreWrapper {
             flow: store.state,
             callback: { [weak self] state in
                 guard let self else { return }
-                self.userId = state.userId
+                self.appId = state.appId
+                self.personName = state.personName
                 self.isLoading = state.isLoading
                 self.error = state.error
                 self.loginSuccess = state.loginSuccess
@@ -28,8 +30,12 @@ final class LoginStoreWrapper {
         )
     }
 
-    func userIdChanged(_ text: String) {
-        store.dispatch(message: LoginMessageUserIdChanged(text: text))
+    func appIdChanged(_ text: String) {
+        store.dispatch(message: LoginMessageAppIdChanged(text: text))
+    }
+
+    func personNameChanged(_ text: String) {
+        store.dispatch(message: LoginMessagePersonNameChanged(text: text))
     }
 
     func loginTapped() {

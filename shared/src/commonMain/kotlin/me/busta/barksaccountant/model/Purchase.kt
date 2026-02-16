@@ -5,5 +5,6 @@ data class Purchase(
     val title: String,
     val description: String?,
     val value: Double,
-    val date: String
+    val date: String,
+    val createdBy: String = ""
 )

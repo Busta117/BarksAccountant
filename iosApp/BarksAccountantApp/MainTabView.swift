@@ -3,10 +3,11 @@ import Shared
 
 struct MainTabView: View {
     let serviceLocator: ServiceLocator
+    let personName: String
 
     var body: some View {
         TabView {
-            SalesTab(serviceLocator: serviceLocator)
+            SalesTab(serviceLocator: serviceLocator, personName: personName)
                 .tabItem {
                     Label("Ventas", systemImage: "cart.fill")
                 }
@@ -36,10 +37,11 @@ struct MainTabView: View {
 
 struct SalesTab: View {
     let serviceLocator: ServiceLocator
+    let personName: String
 
     var body: some View {
         NavigationStack {
-            SalesListView(serviceLocator: serviceLocator)
+            SalesListView(serviceLocator: serviceLocator, personName: personName)
         }
     }
 }

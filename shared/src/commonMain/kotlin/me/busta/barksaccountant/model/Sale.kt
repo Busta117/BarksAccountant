@@ -9,5 +9,6 @@ data class Sale(
     val products: List<SaleProduct>,
     val totalPrice: Double,
     val isPaid: Boolean,
-    val isDelivered: Boolean
+    val isDelivered: Boolean,
+    val createdBy: String = ""
 )

@@ -1,6 +1,9 @@
 package me.busta.barksaccountant.android
 
 import android.app.Application
+import com.google.firebase.FirebaseApp
+import com.google.firebase.analytics.FirebaseAnalytics
+import me.busta.barksaccountant.data.AndroidFirestoreService
 import me.busta.barksaccountant.data.AndroidLocalStorage
 import me.busta.barksaccountant.di.ServiceLocator
 
@@ -10,6 +13,11 @@ class BarksAccountantApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        serviceLocator = ServiceLocator(localStorage = AndroidLocalStorage(this))
+        FirebaseApp.initializeApp(this)
+        FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
+        serviceLocator = ServiceLocator(
+            localStorage = AndroidLocalStorage(this),
+            firestoreService = AndroidFirestoreService()
+        )
     }
 }

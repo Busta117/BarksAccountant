@@ -17,7 +17,8 @@ import kotlin.uuid.Uuid
 class SaleFormStore(
     private val saleRepository: SaleRepository,
     private val productRepository: ProductRepository,
-    private val clientRepository: ClientRepository
+    private val clientRepository: ClientRepository,
+    private val createdBy: String = ""
 ) : Store<SaleFormState, SaleFormMessage, SaleFormEffect>(SaleFormState()) {
 
     override fun reduce(state: SaleFormState, message: SaleFormMessage): Next<SaleFormState, SaleFormEffect> {
@@ -127,7 +128,8 @@ class SaleFormStore(
                     products = state.products,
                     totalPrice = state.totalPrice,
                     isPaid = false,
-                    isDelivered = false
+                    isDelivered = false,
+                    createdBy = createdBy
                 )
                 if (state.isEditing) {
                     Next.withEffects(

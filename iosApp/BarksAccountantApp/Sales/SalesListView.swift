@@ -3,10 +3,12 @@ import Shared
 
 struct SalesListView: View {
     let serviceLocator: ServiceLocator
+    let personName: String
     @State private var store: SalesListStoreWrapper
 
-    init(serviceLocator: ServiceLocator) {
+    init(serviceLocator: ServiceLocator, personName: String) {
         self.serviceLocator = serviceLocator
+        self.personName = personName
         _store = State(initialValue: SalesListStoreWrapper(saleRepository: serviceLocator.saleRepository))
     }
 
@@ -41,11 +43,11 @@ struct SalesListView: View {
         }
         .navigationDestination(for: String.self) { value in
             if value == "new_sale" {
-                SaleFormView(serviceLocator: serviceLocator, saleId: nil, onSaved: {
+                SaleFormView(serviceLocator: serviceLocator, saleId: nil, personName: personName, onSaved: {
                     store.reload()
                 })
             } else {
-                SaleDetailView(serviceLocator: serviceLocator, saleId: value, onSaleUpdated: {
+                SaleDetailView(serviceLocator: serviceLocator, saleId: value, personName: personName, onSaleUpdated: {
                     store.reload()
                 })
             }
