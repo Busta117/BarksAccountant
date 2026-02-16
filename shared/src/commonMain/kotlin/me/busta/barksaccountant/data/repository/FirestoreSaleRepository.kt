@@ -1,12 +1,12 @@
 package me.busta.barksaccountant.data.repository
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import me.busta.barksaccountant.data.FirestoreService
 import me.busta.barksaccountant.model.Sale
 import me.busta.barksaccountant.model.SaleProduct
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 class FirestoreSaleRepository(
     private val firestoreService: FirestoreService,
     private val appId: String
@@ -24,7 +24,7 @@ class FirestoreSaleRepository(
     }
 
     override suspend fun saveSale(sale: Sale): Sale {
-        val newId = Uuid.random().toString()
+        val newId = generateNextId()
         val newSale = sale.copy(id = newId)
         firestoreService.setDocument(collectionPath, newId, saleToMap(newSale))
         return newSale
@@ -39,6 +39,19 @@ class FirestoreSaleRepository(
         firestoreService.deleteDocument(collectionPath, id)
     }
 
+    private suspend fun generateNextId(): String {
+        val year = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .year
+        val yearPrefix = "$year-"
+        val existingIds = getSales().map { it.id }
+        val maxNumber = existingIds
+            .filter { it.startsWith(yearPrefix) }
+            .mapNotNull { it.removePrefix(yearPrefix).toIntOrNull() }
+            .maxOrNull() ?: 0
+        return "$yearPrefix${(maxNumber + 1).toString().padStart(4, '0')}"
+    }
+
     private fun saleToMap(sale: Sale): Map<String, Any> {
         val map = mutableMapOf<String, Any>(
             "clientName" to sale.clientName,
@@ -48,7 +61,6 @@ class FirestoreSaleRepository(
             "isDelivered" to sale.isDelivered,
             "createdBy" to sale.createdBy
         )
-        sale.responsible?.let { map["responsible"] = it }
         sale.deliveryDate?.let { map["deliveryDate"] = it }
         map["products"] = sale.products.map { product ->
             mapOf<String, Any>(
@@ -67,7 +79,6 @@ class FirestoreSaleRepository(
         return Sale(
             id = id,
             clientName = data["clientName"] as? String ?: "",
-            responsible = data["responsible"] as? String,
             orderDate = data["orderDate"] as? String ?: "",
             deliveryDate = data["deliveryDate"] as? String,
             products = productsData.map { productMap ->

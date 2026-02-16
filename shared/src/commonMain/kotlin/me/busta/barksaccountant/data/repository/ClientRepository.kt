@@ -7,4 +7,5 @@ interface ClientRepository {
     suspend fun getClient(id: String): Client?
     suspend fun saveClient(client: Client): Client
     suspend fun updateClient(client: Client): Client
+    suspend fun deleteClient(id: String)
 }

@@ -13,7 +13,6 @@ sealed interface SaleFormMessage {
         val sale: Sale?
     ) : SaleFormMessage
     data class ClientSelected(val name: String) : SaleFormMessage
-    data class ResponsibleChanged(val text: String) : SaleFormMessage
     data class OrderDateChanged(val date: String) : SaleFormMessage
     data class DeliveryDateChanged(val date: String?) : SaleFormMessage
     data class AddProduct(val product: Product) : SaleFormMessage
@@ -22,5 +21,9 @@ sealed interface SaleFormMessage {
     data class DecrementQuantity(val index: Int) : SaleFormMessage
     data object SaveTapped : SaleFormMessage
     data object SaveSuccess : SaleFormMessage
+    data object DeleteTapped : SaleFormMessage
+    data object ConfirmDelete : SaleFormMessage
+    data object DismissDelete : SaleFormMessage
+    data object DeleteSuccess : SaleFormMessage
     data class ErrorOccurred(val error: String) : SaleFormMessage
 }

@@ -41,6 +41,10 @@ class FirestoreProductRepository(
         )
     }
 
+    override suspend fun deleteProduct(id: String) {
+        firestoreService.deleteDocument(collectionPath, id)
+    }
+
     private fun mapToProduct(data: Map<String, Any>, overrideId: String? = null): Product {
         return Product(
             id = overrideId ?: (data["id"] as? String ?: ""),

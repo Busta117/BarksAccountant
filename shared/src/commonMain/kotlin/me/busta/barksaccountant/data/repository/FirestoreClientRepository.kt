@@ -34,6 +34,10 @@ class FirestoreClientRepository(
         return client
     }
 
+    override suspend fun deleteClient(id: String) {
+        firestoreService.deleteDocument(collectionPath, id)
+    }
+
     private fun clientToMap(client: Client): Map<String, Any> {
         val map = mutableMapOf<String, Any>("name" to client.name)
         client.responsible?.let { map["responsible"] = it }

@@ -8,7 +8,6 @@ data class SaleFormState(
     val saleId: String? = null,
     val isEditing: Boolean = false,
     val clientName: String = "",
-    val responsible: String = "",
     val orderDate: String = "",
     val deliveryDate: String? = null,
     val products: List<SaleProduct> = emptyList(),
@@ -16,6 +15,8 @@ data class SaleFormState(
     val availableProducts: List<Product> = emptyList(),
     val isSaving: Boolean = false,
     val savedSuccessfully: Boolean = false,
+    val showDeleteConfirm: Boolean = false,
+    val deletedSuccessfully: Boolean = false,
     val error: String? = null
 ) {
     val totalPrice: Double get() = products.sumOf { it.totalPrice }

@@ -103,6 +103,20 @@ fun SalesListScreen(
                     }
                 }
             }
+            state.sales.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "No hay ventas",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             else -> {
                 LazyColumn(
                     modifier = Modifier

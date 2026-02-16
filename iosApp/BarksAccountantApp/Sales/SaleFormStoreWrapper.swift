@@ -5,7 +5,6 @@ import Shared
 final class SaleFormStoreWrapper {
     private(set) var isEditing: Bool = false
     private(set) var clientName: String = ""
-    private(set) var responsible: String = ""
     private(set) var orderDate: String = ""
     private(set) var deliveryDate: String? = nil
     private(set) var products: [SaleProduct] = []
@@ -13,6 +12,8 @@ final class SaleFormStoreWrapper {
     private(set) var availableProducts: [Product] = []
     private(set) var isSaving: Bool = false
     private(set) var savedSuccessfully: Bool = false
+    private(set) var showDeleteConfirm: Bool = false
+    private(set) var deletedSuccessfully: Bool = false
     private(set) var error: String? = nil
     private(set) var totalPrice: Double = 0.0
     private(set) var canSave: Bool = false
@@ -36,7 +37,6 @@ final class SaleFormStoreWrapper {
                 guard let self else { return }
                 self.isEditing = state.isEditing
                 self.clientName = state.clientName
-                self.responsible = state.responsible
                 self.orderDate = state.orderDate
                 self.deliveryDate = state.deliveryDate
                 self.products = state.products as? [SaleProduct] ?? []
@@ -44,6 +44,8 @@ final class SaleFormStoreWrapper {
                 self.availableProducts = state.availableProducts as? [Product] ?? []
                 self.isSaving = state.isSaving
                 self.savedSuccessfully = state.savedSuccessfully
+                self.showDeleteConfirm = state.showDeleteConfirm
+                self.deletedSuccessfully = state.deletedSuccessfully
                 self.error = state.error
                 self.totalPrice = state.totalPrice
                 self.canSave = state.canSave
@@ -54,10 +56,6 @@ final class SaleFormStoreWrapper {
 
     func clientSelected(_ name: String) {
         store.dispatch(message: SaleFormMessageClientSelected(name: name))
-    }
-
-    func responsibleChanged(_ text: String) {
-        store.dispatch(message: SaleFormMessageResponsibleChanged(text: text))
     }
 
     func orderDateChanged(_ date: String) {
@@ -86,6 +84,18 @@ final class SaleFormStoreWrapper {
 
     func saveTapped() {
         store.dispatch(message: SaleFormMessageSaveTapped.shared)
+    }
+
+    func deleteTapped() {
+        store.dispatch(message: SaleFormMessageDeleteTapped.shared)
+    }
+
+    func confirmDelete() {
+        store.dispatch(message: SaleFormMessageConfirmDelete.shared)
+    }
+
+    func dismissDelete() {
+        store.dispatch(message: SaleFormMessageDismissDelete.shared)
     }
 
     deinit {

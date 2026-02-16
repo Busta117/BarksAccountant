@@ -1,26 +1,20 @@
 package me.busta.barksaccountant.android.ui.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocalMall
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.ShoppingCart
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -29,9 +23,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import me.busta.barksaccountant.android.ui.screen.purchases.PurchaseFormScreen
+import me.busta.barksaccountant.android.ui.screen.purchases.PurchasesListScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleDetailScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleFormScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SalesListScreen
+import me.busta.barksaccountant.android.ui.screen.settings.ClientFormScreen
+import me.busta.barksaccountant.android.ui.screen.settings.ClientsListScreen
+import me.busta.barksaccountant.android.ui.screen.settings.ProductFormScreen
+import me.busta.barksaccountant.android.ui.screen.settings.ProductsListScreen
+import me.busta.barksaccountant.android.ui.screen.settings.SettingsScreen
 import me.busta.barksaccountant.di.ServiceLocator
 
 private data class TabItem(
@@ -42,7 +43,7 @@ private data class TabItem(
 
 private val tabs = listOf(
     TabItem("sales_list", "Ventas", Icons.Default.ShoppingCart),
-    TabItem("purchases", "Compras", Icons.Default.LocalMall),
+    TabItem("purchases_list", "Compras", Icons.Default.LocalMall),
     TabItem("settings", "Settings", Icons.Default.Settings)
 )
 
@@ -83,15 +84,12 @@ fun MainScreen(
             startDestination = "sales_list",
             modifier = Modifier.padding(innerPadding)
         ) {
+            // Sales
             composable("sales_list") {
                 SalesListScreen(
                     serviceLocator = serviceLocator,
-                    onSaleClick = { saleId ->
-                        navController.navigate("sale_detail/$saleId")
-                    },
-                    onNewSale = {
-                        navController.navigate("sale_form")
-                    }
+                    onSaleClick = { saleId -> navController.navigate("sale_detail/$saleId") },
+                    onNewSale = { navController.navigate("sale_form") }
                 )
             }
 
@@ -103,22 +101,14 @@ fun MainScreen(
                 SaleDetailScreen(
                     serviceLocator = serviceLocator,
                     saleId = saleId,
-                    onEditSale = {
-                        navController.navigate("sale_form?saleId=$saleId")
-                    },
+                    onEditSale = { navController.navigate("sale_form?saleId=$saleId") },
                     onBack = { navController.popBackStack() }
                 )
             }
 
             composable(
                 "sale_form?saleId={saleId}",
-                arguments = listOf(
-                    navArgument("saleId") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                )
+                arguments = listOf(navArgument("saleId") { type = NavType.StringType; nullable = true; defaultValue = null })
             ) { backStackEntry ->
                 val saleId = backStackEntry.arguments?.getString("saleId")
                 SaleFormScreen(
@@ -130,59 +120,83 @@ fun MainScreen(
                 )
             }
 
-            composable("purchases") {
-                PurchasesPlaceholder()
+            // Purchases
+            composable("purchases_list") {
+                PurchasesListScreen(
+                    serviceLocator = serviceLocator,
+                    onPurchaseClick = { purchaseId -> navController.navigate("purchase_form?purchaseId=$purchaseId") },
+                    onNewPurchase = { navController.navigate("purchase_form") }
+                )
             }
 
+            composable(
+                "purchase_form?purchaseId={purchaseId}",
+                arguments = listOf(navArgument("purchaseId") { type = NavType.StringType; nullable = true; defaultValue = null })
+            ) { backStackEntry ->
+                val purchaseId = backStackEntry.arguments?.getString("purchaseId")
+                PurchaseFormScreen(
+                    serviceLocator = serviceLocator,
+                    purchaseId = purchaseId,
+                    personName = personName,
+                    onSaved = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            // Settings
             composable("settings") {
-                SettingsPlaceholder()
+                SettingsScreen(
+                    serviceLocator = serviceLocator,
+                    personName = personName,
+                    onLogout = onLogout,
+                    onProductsClick = { navController.navigate("products_list") },
+                    onClientsClick = { navController.navigate("clients_list") }
+                )
             }
-        }
-    }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun PurchasesPlaceholder() {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Compras") })
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Compras - Pr\u00f3ximamente",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
+            composable("products_list") {
+                ProductsListScreen(
+                    serviceLocator = serviceLocator,
+                    onProductClick = { productId -> navController.navigate("product_form?productId=$productId") },
+                    onNewProduct = { navController.navigate("product_form") },
+                    onBack = { navController.popBackStack() }
+                )
+            }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun SettingsPlaceholder() {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Settings") })
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                "Settings - Pr\u00f3ximamente",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            composable(
+                "product_form?productId={productId}",
+                arguments = listOf(navArgument("productId") { type = NavType.StringType; nullable = true; defaultValue = null })
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getString("productId")
+                ProductFormScreen(
+                    serviceLocator = serviceLocator,
+                    productId = productId,
+                    onSaved = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("clients_list") {
+                ClientsListScreen(
+                    serviceLocator = serviceLocator,
+                    onClientClick = { clientId -> navController.navigate("client_form?clientId=$clientId") },
+                    onNewClient = { navController.navigate("client_form") },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                "client_form?clientId={clientId}",
+                arguments = listOf(navArgument("clientId") { type = NavType.StringType; nullable = true; defaultValue = null })
+            ) { backStackEntry ->
+                val clientId = backStackEntry.arguments?.getString("clientId")
+                ClientFormScreen(
+                    serviceLocator = serviceLocator,
+                    clientId = clientId,
+                    onSaved = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
+                )
+            }
         }
     }
 }

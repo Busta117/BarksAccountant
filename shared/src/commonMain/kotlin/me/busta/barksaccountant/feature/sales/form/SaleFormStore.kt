@@ -10,10 +10,6 @@ import me.busta.barksaccountant.model.Sale
 import me.busta.barksaccountant.model.SaleProduct
 import me.busta.barksaccountant.store.Next
 import me.busta.barksaccountant.store.Store
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
-
-@OptIn(ExperimentalUuidApi::class)
 class SaleFormStore(
     private val saleRepository: SaleRepository,
     private val productRepository: ProductRepository,
@@ -42,7 +38,6 @@ class SaleFormStore(
                     Next.just(
                         state.copy(
                             clientName = sale.clientName,
-                            responsible = sale.responsible ?: "",
                             orderDate = sale.orderDate,
                             deliveryDate = sale.deliveryDate,
                             products = sale.products,
@@ -61,9 +56,6 @@ class SaleFormStore(
             }
             is SaleFormMessage.ClientSelected -> Next.just(
                 state.copy(clientName = message.name)
-            )
-            is SaleFormMessage.ResponsibleChanged -> Next.just(
-                state.copy(responsible = message.text)
             )
             is SaleFormMessage.OrderDateChanged -> Next.just(
                 state.copy(orderDate = message.date)
@@ -120,9 +112,8 @@ class SaleFormStore(
             is SaleFormMessage.SaveTapped -> {
                 if (!state.canSave) return Next.just(state)
                 val sale = Sale(
-                    id = state.saleId ?: Uuid.random().toString(),
+                    id = state.saleId ?: "",
                     clientName = state.clientName,
-                    responsible = state.responsible.ifBlank { null },
                     orderDate = state.orderDate,
                     deliveryDate = state.deliveryDate,
                     products = state.products,
@@ -145,6 +136,22 @@ class SaleFormStore(
             }
             is SaleFormMessage.SaveSuccess -> Next.just(
                 state.copy(isSaving = false, savedSuccessfully = true)
+            )
+            is SaleFormMessage.DeleteTapped -> Next.just(
+                state.copy(showDeleteConfirm = true)
+            )
+            is SaleFormMessage.ConfirmDelete -> {
+                val id = state.saleId ?: return Next.just(state)
+                Next.withEffects(
+                    state.copy(showDeleteConfirm = false, isSaving = true),
+                    SaleFormEffect.DeleteSale(id)
+                )
+            }
+            is SaleFormMessage.DismissDelete -> Next.just(
+                state.copy(showDeleteConfirm = false)
+            )
+            is SaleFormMessage.DeleteSuccess -> Next.just(
+                state.copy(isSaving = false, deletedSuccessfully = true)
             )
             is SaleFormMessage.ErrorOccurred -> Next.just(
                 state.copy(isSaving = false, error = message.error)
@@ -178,6 +185,14 @@ class SaleFormStore(
                     dispatch(SaleFormMessage.SaveSuccess)
                 } catch (e: Exception) {
                     dispatch(SaleFormMessage.ErrorOccurred(e.message ?: "Error al actualizar"))
+                }
+            }
+            is SaleFormEffect.DeleteSale -> {
+                try {
+                    saleRepository.deleteSale(effect.id)
+                    dispatch(SaleFormMessage.DeleteSuccess)
+                } catch (e: Exception) {
+                    dispatch(SaleFormMessage.ErrorOccurred(e.message ?: "Error al eliminar"))
                 }
             }
         }

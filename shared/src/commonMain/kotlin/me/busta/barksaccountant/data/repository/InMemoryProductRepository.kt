@@ -35,4 +35,8 @@ class InMemoryProductRepository : ProductRepository {
         }
         return product
     }
+
+    override suspend fun deleteProduct(id: String) {
+        products.removeAll { it.id == id }
+    }
 }

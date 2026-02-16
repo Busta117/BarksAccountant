@@ -30,11 +30,11 @@ struct SaleFormView: View {
     var body: some View {
         Form {
             clientSection
-            responsibleSection
             datesSection
             productsSection
             totalSection
             saveSection
+            deleteSection
         }
         .navigationTitle(store.isEditing ? "Editar Venta" : "Nueva Venta")
         .sheet(isPresented: $showClientPicker) {
@@ -54,6 +54,21 @@ struct SaleFormView: View {
                 dismiss()
             }
         }
+        .onChange(of: store.deletedSuccessfully) { _, deleted in
+            if deleted {
+                onSaved()
+                dismiss()
+            }
+        }
+        .alert("Eliminar Venta", isPresented: Binding(
+            get: { store.showDeleteConfirm },
+            set: { if !$0 { store.dismissDelete() } }
+        )) {
+            Button("Cancelar", role: .cancel) { store.dismissDelete() }
+            Button("Eliminar", role: .destructive) { store.confirmDelete() }
+        } message: {
+            Text("¿Estás seguro de que quieres eliminar esta venta?")
+        }
     }
 
     // MARK: - Sections
@@ -70,15 +85,6 @@ struct SaleFormView: View {
                         .font(.caption)
                 }
             }
-        }
-    }
-
-    private var responsibleSection: some View {
-        Section("Responsable (opcional)") {
-            TextField("Responsable", text: Binding(
-                get: { store.responsible },
-                set: { store.responsibleChanged($0) }
-            ))
         }
     }
 
@@ -186,6 +192,16 @@ struct SaleFormView: View {
                 Text(error)
                     .foregroundStyle(.red)
                     .font(.caption)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var deleteSection: some View {
+        if store.isEditing {
+            Section {
+                Button("Eliminar Venta", role: .destructive) { store.deleteTapped() }
+                    .frame(maxWidth: .infinity)
             }
         }
     }

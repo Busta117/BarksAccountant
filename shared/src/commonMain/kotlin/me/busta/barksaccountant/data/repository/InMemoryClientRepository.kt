@@ -33,4 +33,8 @@ class InMemoryClientRepository : ClientRepository {
         }
         return client
     }
+
+    override suspend fun deleteClient(id: String) {
+        clients.removeAll { it.id == id }
+    }
 }

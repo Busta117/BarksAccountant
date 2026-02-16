@@ -24,6 +24,11 @@ struct SalesListView: View {
                         store.reload()
                     }
                 }
+            } else if store.sales.isEmpty {
+                Text("No hay ventas")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(store.sales, id: \.id) { sale in
                     NavigationLink(value: sale.id) {

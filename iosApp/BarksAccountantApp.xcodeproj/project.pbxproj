@@ -25,9 +25,35 @@
 		A10030 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B10030 /* GoogleService-Info.plist */; };
 		A10031 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = P10002 /* FirebaseAnalytics */; };
 		A10032 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = P10003 /* FirebaseFirestore */; };
+		B10040 /* PurchasesListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10040 /* PurchasesListView.swift */; };
+		B10041 /* PurchasesListStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10041 /* PurchasesListStoreWrapper.swift */; };
+		B10042 /* PurchaseFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10042 /* PurchaseFormView.swift */; };
+		B10043 /* PurchaseFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10043 /* PurchaseFormStoreWrapper.swift */; };
+		B10044 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10044 /* SettingsView.swift */; };
+		B10045 /* ProductsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10045 /* ProductsListView.swift */; };
+		B10046 /* ProductsListStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10046 /* ProductsListStoreWrapper.swift */; };
+		B10047 /* ProductFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10047 /* ProductFormView.swift */; };
+		B10048 /* ProductFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10048 /* ProductFormStoreWrapper.swift */; };
+		B10049 /* ClientsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10049 /* ClientsListView.swift */; };
+		B10050 /* ClientsListStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10050 /* ClientsListStoreWrapper.swift */; };
+		B10051 /* ClientFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10051 /* ClientFormView.swift */; };
+		B10052 /* ClientFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10052 /* ClientFormStoreWrapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		A10040 /* PurchasesListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchasesListView.swift; sourceTree = "<group>"; };
+		A10041 /* PurchasesListStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchasesListStoreWrapper.swift; sourceTree = "<group>"; };
+		A10042 /* PurchaseFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseFormView.swift; sourceTree = "<group>"; };
+		A10043 /* PurchaseFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseFormStoreWrapper.swift; sourceTree = "<group>"; };
+		A10044 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A10045 /* ProductsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListView.swift; sourceTree = "<group>"; };
+		A10046 /* ProductsListStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsListStoreWrapper.swift; sourceTree = "<group>"; };
+		A10047 /* ProductFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductFormView.swift; sourceTree = "<group>"; };
+		A10048 /* ProductFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductFormStoreWrapper.swift; sourceTree = "<group>"; };
+		A10049 /* ClientsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientsListView.swift; sourceTree = "<group>"; };
+		A10050 /* ClientsListStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientsListStoreWrapper.swift; sourceTree = "<group>"; };
+		A10051 /* ClientFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormView.swift; sourceTree = "<group>"; };
+		A10052 /* ClientFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClientFormStoreWrapper.swift; sourceTree = "<group>"; };
 		B10001 /* BarksAccountantApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarksAccountantApp.swift; sourceTree = "<group>"; };
 		B10004 /* FirestoreBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirestoreBridge.swift; sourceTree = "<group>"; };
 		B10005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -79,6 +105,8 @@
 				B10011 /* LoginStoreWrapper.swift */,
 				B10013 /* MainTabView.swift */,
 				D10004 /* Sales */,
+				D10005 /* Purchases */,
+				D10006 /* Settings */,
 				B10005 /* Assets.xcassets */,
 				B10006 /* Info.plist */,
 				B10030 /* GoogleService-Info.plist */,
@@ -107,6 +135,33 @@
 				B10021 /* ProductPickerSheet.swift */,
 			);
 			path = Sales;
+			sourceTree = "<group>";
+		};
+		D10005 /* Purchases */ = {
+			isa = PBXGroup;
+			children = (
+				A10040 /* PurchasesListView.swift */,
+				A10041 /* PurchasesListStoreWrapper.swift */,
+				A10042 /* PurchaseFormView.swift */,
+				A10043 /* PurchaseFormStoreWrapper.swift */,
+			);
+			path = Purchases;
+			sourceTree = "<group>";
+		};
+		D10006 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				A10044 /* SettingsView.swift */,
+				A10045 /* ProductsListView.swift */,
+				A10046 /* ProductsListStoreWrapper.swift */,
+				A10047 /* ProductFormView.swift */,
+				A10048 /* ProductFormStoreWrapper.swift */,
+				A10049 /* ClientsListView.swift */,
+				A10050 /* ClientsListStoreWrapper.swift */,
+				A10051 /* ClientFormView.swift */,
+				A10052 /* ClientFormStoreWrapper.swift */,
+			);
+			path = Settings;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -242,6 +297,19 @@
 				A10019 /* SaleFormStoreWrapper.swift in Sources */,
 				A10020 /* ClientPickerSheet.swift in Sources */,
 				A10021 /* ProductPickerSheet.swift in Sources */,
+				B10040 /* PurchasesListView.swift in Sources */,
+				B10041 /* PurchasesListStoreWrapper.swift in Sources */,
+				B10042 /* PurchaseFormView.swift in Sources */,
+				B10043 /* PurchaseFormStoreWrapper.swift in Sources */,
+				B10044 /* SettingsView.swift in Sources */,
+				B10045 /* ProductsListView.swift in Sources */,
+				B10046 /* ProductsListStoreWrapper.swift in Sources */,
+				B10047 /* ProductFormView.swift in Sources */,
+				B10048 /* ProductFormStoreWrapper.swift in Sources */,
+				B10049 /* ClientsListView.swift in Sources */,
+				B10050 /* ClientsListStoreWrapper.swift in Sources */,
+				B10051 /* ClientFormView.swift in Sources */,
+				B10052 /* ClientFormStoreWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -306,7 +374,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NUPFXBM695;
+				DEVELOPMENT_TEAM = T8SEA364VE;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
@@ -315,7 +383,6 @@
 				INFOPLIST_FILE = BarksAccountantApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BarksAccountant;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -327,7 +394,7 @@
 					"-framework",
 					Shared,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = me.busta.barksaccountant;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.astrazeneca.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -341,7 +408,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = NUPFXBM695;
+				DEVELOPMENT_TEAM = T8SEA364VE;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)",
@@ -350,7 +417,6 @@
 				INFOPLIST_FILE = BarksAccountantApp/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = BarksAccountant;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -362,7 +428,7 @@
 					"-framework",
 					Shared,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = me.busta.barksaccountant;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.astrazeneca.Tests-iOS";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;

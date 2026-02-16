@@ -1,17 +1,16 @@
 package me.busta.barksaccountant.data.repository
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import me.busta.barksaccountant.model.Sale
 import me.busta.barksaccountant.model.SaleProduct
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
 
-@OptIn(ExperimentalUuidApi::class)
 class InMemorySaleRepository : SaleRepository {
     private val sales = mutableListOf(
         Sale(
-            id = "s1",
+            id = "2025-0001",
             clientName = "Juan García",
-            responsible = "María",
             orderDate = "2025-02-10",
             deliveryDate = null,
             products = listOf(
@@ -24,9 +23,8 @@ class InMemorySaleRepository : SaleRepository {
             createdBy = "Santiago"
         ),
         Sale(
-            id = "s2",
+            id = "2025-0002",
             clientName = "Ana López",
-            responsible = null,
             orderDate = "2025-02-08",
             deliveryDate = "2025-02-12",
             products = listOf(
@@ -38,9 +36,8 @@ class InMemorySaleRepository : SaleRepository {
             createdBy = "Santiago"
         ),
         Sale(
-            id = "s3",
+            id = "2025-0003",
             clientName = "Pedro Martínez",
-            responsible = "Carlos",
             orderDate = "2025-02-13",
             deliveryDate = null,
             products = listOf(
@@ -63,7 +60,17 @@ class InMemorySaleRepository : SaleRepository {
     }
 
     override suspend fun saveSale(sale: Sale): Sale {
-        val newSale = sale.copy(id = Uuid.random().toString())
+        val year = Clock.System.now()
+            .toLocalDateTime(TimeZone.currentSystemDefault())
+            .year
+        val yearPrefix = "$year-"
+        val maxNumber = sales
+            .map { it.id }
+            .filter { it.startsWith(yearPrefix) }
+            .mapNotNull { it.removePrefix(yearPrefix).toIntOrNull() }
+            .maxOrNull() ?: 0
+        val newId = "$yearPrefix${(maxNumber + 1).toString().padStart(4, '0')}"
+        val newSale = sale.copy(id = newId)
         sales.add(newSale)
         return newSale
     }

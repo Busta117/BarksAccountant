@@ -68,9 +68,6 @@ struct SaleDetailView: View {
         List {
             Section("Cliente") {
                 LabeledContent("Nombre", value: sale.clientName)
-                if let responsible = sale.responsible {
-                    LabeledContent("Responsable", value: responsible)
-                }
                 if !sale.createdBy.isEmpty {
                     LabeledContent("Creado por", value: sale.createdBy)
                 }

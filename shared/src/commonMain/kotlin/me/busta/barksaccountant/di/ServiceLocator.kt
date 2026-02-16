@@ -14,4 +14,5 @@ class ServiceLocator(
     val saleRepository: SaleRepository get() = FirestoreSaleRepository(firestoreService, appId)
     val productRepository: ProductRepository get() = FirestoreProductRepository(firestoreService, appId)
     val clientRepository: ClientRepository get() = FirestoreClientRepository(firestoreService, appId)
+    val purchaseRepository: PurchaseRepository get() = FirestorePurchaseRepository(firestoreService, appId)
 }

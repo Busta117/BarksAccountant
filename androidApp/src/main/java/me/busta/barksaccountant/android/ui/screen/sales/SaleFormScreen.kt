@@ -17,7 +17,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.RemoveCircle
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -92,6 +94,31 @@ fun SaleFormScreen(
         if (state.savedSuccessfully) {
             onSaved()
         }
+    }
+
+    LaunchedEffect(state.deletedSuccessfully) {
+        if (state.deletedSuccessfully) {
+            onSaved()
+        }
+    }
+
+    // Delete confirmation dialog
+    if (state.showDeleteConfirm) {
+        AlertDialog(
+            onDismissRequest = { store.dispatch(SaleFormMessage.DismissDelete) },
+            title = { Text("Eliminar Venta") },
+            text = { Text("¿Estás seguro de que quieres eliminar esta venta?") },
+            confirmButton = {
+                TextButton(onClick = { store.dispatch(SaleFormMessage.ConfirmDelete) }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { store.dispatch(SaleFormMessage.DismissDelete) }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 
     // Update hasDeliveryDate when editing an existing sale
@@ -218,23 +245,6 @@ fun SaleFormScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // Responsible section
-            Text(
-                "Responsable (opcional)",
-                style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Spacer(Modifier.height(8.dp))
-            OutlinedTextField(
-                value = state.responsible,
-                onValueChange = { store.dispatch(SaleFormMessage.ResponsibleChanged(it)) },
-                label = { Text("Responsable") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(16.dp))
-
             // Dates section
             Text(
                 "Fechas",
@@ -347,6 +357,17 @@ fun SaleFormScreen(
                     )
                 } else {
                     Text("Guardar", fontWeight = FontWeight.SemiBold)
+                }
+            }
+
+            if (state.isEditing) {
+                Spacer(Modifier.height(12.dp))
+                OutlinedButton(
+                    onClick = { store.dispatch(SaleFormMessage.DeleteTapped) },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Eliminar Venta")
                 }
             }
 

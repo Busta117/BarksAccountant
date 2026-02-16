@@ -31,7 +31,9 @@ struct BarksAccountantApp: App {
                 if appStore.isCheckingAuth {
                     ProgressView()
                 } else if appStore.isLoggedIn {
-                    MainTabView(serviceLocator: serviceLocator, personName: appStore.personName ?? "")
+                    MainTabView(serviceLocator: serviceLocator, personName: appStore.personName ?? "", onLogout: {
+                        appStore.onLoggedOut()
+                    })
                 } else {
                     LoginView(serviceLocator: serviceLocator) { appId, personName in
                         serviceLocator.appId = appId

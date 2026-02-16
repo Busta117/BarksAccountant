@@ -55,10 +55,16 @@ BarksAccountant/
 │       │   │   ├── LocalStorage.kt  # interface: getString, putString, remove
 │       │   │   ├── FirestoreService.kt # interface: getDocument, setDocument, deleteDocument
 │       │   │   └── repository/
-│       │   │       ├── UserRepository.kt         # interface: validateUser(userId)
+│       │   │       ├── AppIdRepository.kt         # interface: validateAppId(appId)
+│       │   │       ├── FirestoreAppIdRepository.kt  # Firestore impl: checks app_ids/{appId}
 │       │   │       ├── SaleRepository.kt         # interface: getSales, getSale, saveSale, updateSale, deleteSale
-│       │   │       ├── ProductRepository.kt      # interface: getProducts, getProduct, saveProduct, updateProduct
-│       │   │       ├── ClientRepository.kt       # interface: getClients, getClient, saveClient, updateClient
+│       │   │       ├── FirestoreSaleRepository.kt   # Firestore impl: apps/{appId}/sales
+│       │   │       ├── ProductRepository.kt      # interface: getProducts, getProduct, saveProduct, updateProduct, deleteProduct
+│       │   │       ├── FirestoreProductRepository.kt # Firestore impl: apps/{appId}/products
+│       │   │       ├── ClientRepository.kt       # interface: getClients, getClient, saveClient, updateClient, deleteClient
+│       │   │       ├── FirestoreClientRepository.kt  # Firestore impl: apps/{appId}/clients
+│       │   │       ├── PurchaseRepository.kt     # interface: getPurchases, getPurchase, savePurchase, updatePurchase, deletePurchase
+│       │   │       ├── FirestorePurchaseRepository.kt # Firestore impl: apps/{appId}/purchases
 │       │   │       ├── InMemoryUserRepository.kt # valid users: "admin", "user1", "busta"
 │       │   │       ├── InMemorySaleRepository.kt # 3 sample sales
 │       │   │       ├── InMemoryProductRepository.kt # 5 sample products
@@ -68,15 +74,31 @@ BarksAccountant/
 │       │   └── feature/
 │       │       ├── app/              # AppStore: auth root (CheckAuth, LoggedIn, LoggedOut)
 │       │       │   ├── AppState.kt, AppMessage.kt, AppEffect.kt, AppStore.kt
-│       │       ├── login/            # LoginStore: userId text, validate, success/fail
+│       │       ├── login/            # LoginStore: appId+personName text, validate, success/fail
 │       │       │   ├── LoginState.kt, LoginMessage.kt, LoginEffect.kt, LoginStore.kt
-│       │       └── sales/
-│       │           ├── list/         # SalesListStore: load sales list
-│       │           │   ├── SalesListState.kt, SalesListMessage.kt, SalesListEffect.kt, SalesListStore.kt
-│       │           ├── detail/       # SaleDetailStore: view detail, mark paid/delivered
-│       │           │   ├── SaleDetailState.kt, SaleDetailMessage.kt, SaleDetailEffect.kt, SaleDetailStore.kt
-│       │           └── form/         # SaleFormStore: create/edit, manage products list
-│       │               ├── SaleFormState.kt, SaleFormMessage.kt, SaleFormEffect.kt, SaleFormStore.kt
+│       │       ├── sales/
+│       │       │   ├── list/         # SalesListStore: load sales list
+│       │       │   │   ├── SalesListState.kt, SalesListMessage.kt, SalesListEffect.kt, SalesListStore.kt
+│       │       │   ├── detail/       # SaleDetailStore: view detail, mark paid/delivered
+│       │       │   │   ├── SaleDetailState.kt, SaleDetailMessage.kt, SaleDetailEffect.kt, SaleDetailStore.kt
+│       │       │   └── form/         # SaleFormStore: create/edit, manage products, delete
+│       │       │       ├── SaleFormState.kt, SaleFormMessage.kt, SaleFormEffect.kt, SaleFormStore.kt
+│       │       ├── purchases/
+│       │       │   ├── list/         # PurchasesListStore: load purchases list
+│       │       │   │   ├── PurchasesListState.kt, PurchasesListMessage.kt, PurchasesListEffect.kt, PurchasesListStore.kt
+│       │       │   └── form/         # PurchaseFormStore: create/edit/delete purchase
+│       │       │       ├── PurchaseFormState.kt, PurchaseFormMessage.kt, PurchaseFormEffect.kt, PurchaseFormStore.kt
+│       │       └── settings/
+│       │           ├── products/
+│       │           │   ├── list/     # ProductsListStore: load products list
+│       │           │   │   ├── ProductsListState.kt, ProductsListMessage.kt, ProductsListEffect.kt, ProductsListStore.kt
+│       │           │   └── form/     # ProductFormStore: create/edit/delete product
+│       │           │       ├── ProductFormState.kt, ProductFormMessage.kt, ProductFormEffect.kt, ProductFormStore.kt
+│       │           └── clients/
+│       │               ├── list/     # ClientsListStore: load clients list
+│       │               │   ├── ClientsListState.kt, ClientsListMessage.kt, ClientsListEffect.kt, ClientsListStore.kt
+│       │               └── form/     # ClientFormStore: create/edit/delete client
+│       │                   ├── ClientFormState.kt, ClientFormMessage.kt, ClientFormEffect.kt, ClientFormStore.kt
 │       ├── androidMain/kotlin/me/busta/barksaccountant/
 │       │   ├── Platform.android.kt
 │       │   └── data/
@@ -103,13 +125,22 @@ BarksAccountant/
 │               │   └── Theme.kt     # Material3 theme with dynamic colors
 │               └── screen/
 │                   ├── LoginScreen.kt    # Login: OutlinedTextField + Button + error Snackbar
-│                   ├── MainScreen.kt     # Scaffold + BottomNavigation + NavHost (3 tabs)
-│                   └── sales/
-│                       ├── SalesListScreen.kt    # LazyColumn of sales, red bar for unpaid
-│                       ├── SaleDetailScreen.kt   # Sale info + mark paid/delivered + AlertDialogs
-│                       ├── SaleFormScreen.kt     # Form: client/dates/products/save
-│                       ├── ClientPickerDialog.kt # AlertDialog with client list
-│                       └── ProductPickerDialog.kt # AlertDialog with product list
+│                   ├── MainScreen.kt     # Scaffold + BottomNavigation + NavHost (3 tabs, all routes)
+│                   ├── sales/
+│                   │   ├── SalesListScreen.kt    # LazyColumn of sales, red bar for unpaid, empty state
+│                   │   ├── SaleDetailScreen.kt   # Sale info + mark paid/delivered + AlertDialogs
+│                   │   ├── SaleFormScreen.kt     # Form: client/dates/products/save/delete
+│                   │   ├── ClientPickerDialog.kt # AlertDialog with client list
+│                   │   └── ProductPickerDialog.kt # AlertDialog with product list
+│                   ├── purchases/
+│                   │   ├── PurchasesListScreen.kt # LazyColumn of purchases, empty state
+│                   │   └── PurchaseFormScreen.kt  # Form: title/desc/value/date/save/delete
+│                   └── settings/
+│                       ├── SettingsScreen.kt     # App ID, person name, Products/Clients/Logout
+│                       ├── ProductsListScreen.kt # LazyColumn of products, empty state
+│                       ├── ProductFormScreen.kt  # Form: name/price/save/delete
+│                       ├── ClientsListScreen.kt  # LazyColumn of clients, empty state
+│                       └── ClientFormScreen.kt   # Form: name/responsible/nif/address/save/delete
 ├── iosApp/                          # iOS app (SwiftUI)
 │   ├── BarksAccountantApp.xcodeproj/project.pbxproj
 │   └── BarksAccountantApp/
@@ -117,19 +148,34 @@ BarksAccountant/
 │       ├── AppStoreWrapper.swift     # @Observable wrapper for AppStore
 │       ├── LoginView.swift           # TextField userId + Login button + toast error
 │       ├── LoginStoreWrapper.swift   # @Observable wrapper for LoginStore
-│       ├── MainTabView.swift         # TabView: Ventas, Compras (placeholder), Settings (placeholder)
-│       ├── FirestoreBridge.swift     # Implements FirestoreServiceBridge ObjC protocol
+│       ├── MainTabView.swift         # TabView: Ventas, Compras, Settings (with onLogout)
+│       ├── FirestoreBridge.swift     # Implements FirestoreServiceBridge ObjC protocol (lazy db)
 │       ├── Info.plist
 │       ├── Assets.xcassets/
-│       └── Sales/
-│           ├── SalesListView.swift         # List of sales, NavigationLink to detail/form
-│           ├── SalesListStoreWrapper.swift
-│           ├── SaleDetailView.swift        # Sale info + mark paid/delivered buttons + alerts
-│           ├── SaleDetailStoreWrapper.swift
-│           ├── SaleFormView.swift          # Form: client picker, dates, products +-quantity, save
-│           ├── SaleFormStoreWrapper.swift
-│           ├── ClientPickerSheet.swift     # Modal sheet to select client
-│           └── ProductPickerSheet.swift    # Modal sheet to add product
+│       ├── Sales/
+│       │   ├── SalesListView.swift         # List of sales, empty state, NavigationLink to detail/form
+│       │   ├── SalesListStoreWrapper.swift
+│       │   ├── SaleDetailView.swift        # Sale info + mark paid/delivered buttons + alerts
+│       │   ├── SaleDetailStoreWrapper.swift
+│       │   ├── SaleFormView.swift          # Form: client picker, dates, products +-quantity, save, delete
+│       │   ├── SaleFormStoreWrapper.swift  # Includes delete methods
+│       │   ├── ClientPickerSheet.swift     # Modal sheet to select client
+│       │   └── ProductPickerSheet.swift    # Modal sheet to add product
+│       ├── Purchases/
+│       │   ├── PurchasesListView.swift     # List of purchases, empty state, swipe-to-edit
+│       │   ├── PurchasesListStoreWrapper.swift
+│       │   ├── PurchaseFormView.swift      # Form: title/desc/value/date, save, delete
+│       │   └── PurchaseFormStoreWrapper.swift  # Uses purchaseDescription (Swift NSObject conflict)
+│       └── Settings/
+│           ├── SettingsView.swift          # App ID, person name, Products/Clients links, Logout
+│           ├── ProductsListView.swift      # List of products, empty state
+│           ├── ProductsListStoreWrapper.swift
+│           ├── ProductFormView.swift       # Form: name/price, save, delete
+│           ├── ProductFormStoreWrapper.swift
+│           ├── ClientsListView.swift       # List of clients, empty state
+│           ├── ClientsListStoreWrapper.swift
+│           ├── ClientFormView.swift        # Form: name/responsible/nif/address, save, delete
+│           └── ClientFormStoreWrapper.swift
 ├── gradle/
 │   └── libs.versions.toml           # Version catalog
 ├── build.gradle.kts                 # Root: declares plugins
@@ -144,22 +190,27 @@ BarksAccountant/
 
 ### Repository Pattern
 - Interfaces in `shared/.../data/repository/` — platform-agnostic
-- In-memory implementations for development (swap to Firestore later)
+- Firestore implementations with prefix `Firestore` (e.g., `FirestoreSaleRepository`)
+- InMemory implementations kept for reference/testing
 - IDs generated with `kotlin.uuid.Uuid.random().toString()` (`@OptIn(ExperimentalUuidApi::class)`)
-- All repos will be scoped to userId when Firestore integration is added
+- All data scoped by App ID: Firestore path `apps/{appId}/collection`
+- Repositories: `SaleRepository`, `ProductRepository`, `ClientRepository`, `PurchaseRepository`, `AppIdRepository`
+- Product/Client repos include `deleteProduct`/`deleteClient` for settings management
 
 ### LocalStorage
 - Interface in `shared/.../data/LocalStorage.kt`
 - `IosLocalStorage` uses `NSUserDefaults` (in `iosMain`)
 - `AndroidLocalStorage` uses `SharedPreferences` (in `androidMain`, needs Context)
-- Used by `AppStore` to persist userId with key `"user_id"`
+- Used by `AppStore` to persist App ID (key `"app_id"`) and person name (key `"person_name"`)
 
 ### ServiceLocator
 - Simple DI in `shared/.../di/ServiceLocator.kt`
-- Constructor receives platform-specific `LocalStorage`
-- Provides all repository instances via lazy properties
-- iOS init: `ServiceLocator(localStorage: IosLocalStorage())` — global in BarksAccountantApp.swift
-- Android init: `ServiceLocator(localStorage: AndroidLocalStorage(context))` — in BarksAccountantApp.kt Application class
+- Constructor receives `LocalStorage` + `FirestoreService`
+- Has mutable `appId: String` property (set after login, used by Firestore repos)
+- Provides repo instances via `get()` (not `lazy`) to pick up current `appId`
+- Available repos: `appIdRepository`, `saleRepository`, `productRepository`, `clientRepository`, `purchaseRepository`
+- iOS init: `ServiceLocator(localStorage: IosLocalStorage(), firestoreService: IosFirestoreService(bridge:))` — global in BarksAccountantApp.swift
+- Android init: `ServiceLocator(localStorage: AndroidLocalStorage(context), firestoreService: AndroidFirestoreService())` — in BarksAccountantApp.kt Application class
 
 ## Firebase Integration
 
@@ -258,8 +309,10 @@ fun XxxScreen(serviceLocator: ServiceLocator, ...) {
 ### Navigation Pattern (Android)
 - Root: `MainActivity` creates `AppStore`, switches between `LoginScreen` and `MainScreen` based on `appState.isLoggedIn`
 - `MainScreen` uses `Scaffold` + `NavigationBar` (bottom bar) + `NavHost`
-- 3 tabs: Ventas (sales_list), Compras (placeholder), Settings (placeholder)
-- Sales navigation routes: `sales_list` → `sale_detail/{saleId}` → `sale_form?saleId={saleId}`
+- 3 tabs: Ventas (sales_list), Compras (purchases_list), Settings (settings)
+- Sales routes: `sales_list` → `sale_detail/{saleId}` → `sale_form?saleId={saleId}`
+- Purchases routes: `purchases_list` → `purchase_form?purchaseId={purchaseId}`
+- Settings routes: `settings` → `products_list` → `product_form?productId={productId}`, `clients_list` → `client_form?clientId={clientId}`
 - Tab switching uses `popUpTo` + `saveState`/`restoreState` for proper back stack
 - Back navigation: system back button pops NavHost backstack automatically
 - Data refresh on back: composable is recreated when re-entering composition, triggering fresh data load via `LaunchedEffect(Unit)`
@@ -299,7 +352,8 @@ fun XxxScreen(serviceLocator: ServiceLocator, onBack: () -> Unit, ...) {
 - DEVELOPMENT_TEAM = NUPFXBM695
 - When adding new Swift files, must add entries to 4 sections: PBXBuildFile, PBXFileReference, PBXGroup (children), PBXSourcesBuildPhase (files)
 - Use incremental IDs like A100XX/B100XX for new entries
-- Sales/ is a PBXGroup (D10004) under BarksAccountantApp group (D10002)
+- Sales/ is PBXGroup D10004, Purchases/ is D10005, Settings/ is D10006 — all under BarksAccountantApp group (D10002)
+- File reference IDs: A10040-A10052 (new files), Build file IDs: B10040-B10052
 - Build phase "Compile Kotlin Framework" runs `./gradlew :shared:embedAndSignAppleFrameworkForXcode`
 - FRAMEWORK_SEARCH_PATHS: `$(SRCROOT)/../shared/build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)`
 - OTHER_LDFLAGS: `-framework Shared`
@@ -332,52 +386,42 @@ fun XxxScreen(serviceLocator: ServiceLocator, onBack: () -> Unit, ...) {
 
 ## Implementation Status
 
-### Phase 1 — Login + Ventas (iOS): COMPLETE
-- Login screen: TextField userId + Login button + error toast + persistence via AppStore/LocalStorage
-- Valid test users: `admin`, `user1`, `busta`
-- TabBar: 3 tabs (Ventas active, Compras placeholder, Settings placeholder)
-- Sales list: shows client name, date, price; red left border for unpaid; + button for new
-- Sale detail: all info, mark as paid (alert confirm), mark as delivered (alert confirm, sets deliveryDate to today), edit button pushes form
-- Sale form: client picker sheet, responsible field, date pickers (order + optional delivery), products list with +/- quantity (- at 1 = delete), add product sheet, total, save button
-- All data in-memory with sample data
+### Login (iOS + Android): COMPLETE
+- iOS: Two TextFields (App ID + Nombre de persona) + Login button + toast error
+- Android: Two OutlinedTextFields + Button + animated error Snackbar
+- Validates App ID against Firestore `app_ids` collection
+- Persists App ID and person name in LocalStorage for auto-login
+- Root auth switch: iOS via `BarksAccountantApp.swift`, Android via `MainActivity.kt`
 
-### Phase 1 — Login + Ventas (Android): COMPLETE
-- Login screen: OutlinedTextField userId + Button + animated error Snackbar + persistence via AppStore/LocalStorage
-- Root auth switch in MainActivity using AppStore.state.collectAsState()
-- BottomNavigationBar: 3 tabs (Ventas active, Compras placeholder, Settings placeholder)
-- Sales list: LazyColumn with SaleRow, red left bar for unpaid, + button in TopAppBar
-- Sale detail: scrollable Column with sections (client, products, dates, status), AlertDialogs for mark paid/delivered
-- Sale form: client picker dialog, responsible field, Material3 DatePickerDialogs, products list with +/- quantity (trash icon at 1 = delete), add product dialog, total, save button
-- Navigation: NavHost with routes (sales_list, sale_detail/{saleId}, sale_form?saleId={saleId})
-- All data in-memory with sample data (shared with iOS)
+### Sales — Ventas (iOS + Android): COMPLETE
+- **List**: shows client name, date, price; red left border for unpaid; + button for new; **empty state** "No hay ventas"
+- **Detail**: all sale info, mark as paid (alert confirm), mark as delivered (alert confirm, sets deliveryDate to today), edit button pushes form
+- **Form (create/edit)**: client picker (sheet on iOS, dialog on Android), responsible field, date pickers (order + optional delivery), products list with +/- quantity (- at 1 = delete/trash icon), add product picker, total, save button, **delete button with confirmation** (only in edit mode)
 
-### Phase 2 — Compras (iOS + Android): PENDING
-Per `app_screen_description.md`:
-- Purchases list with title, description, date, value
-- Swipe-to-edit on each cell (full swipe right-to-left → edit screen)
-- Create/edit purchase form: title (required), description (optional), value (required), date (required, default today)
-- Needs: `PurchaseRepository` (interface exists, InMemory needed), `PurchasesListStore`, `PurchaseFormStore`
-- iOS: `PurchasesListView`, `PurchaseFormView` + StoreWrappers
-- Android: `PurchasesListScreen`, `PurchaseFormScreen` + navigation routes
-- Replace placeholders in MainTabView/MainScreen Compras tab
+### Purchases — Compras (iOS + Android): COMPLETE
+- **List**: shows title, description, date, value; swipe-to-edit on iOS; + button for new; **empty state** "No hay compras"
+- **Form (create/edit)**: title (required), description (optional), value (required, numeric > 0), date (required, default today), save button, **delete button with confirmation** (only in edit mode)
+- Shared stores: PurchasesListStore, PurchaseFormStore (with createdBy param)
+- Note: `PurchaseFormState.value` is `String` for text field binding; validated in `canSave`
 
-### Phase 3 — Settings (iOS + Android): PENDING
-Per `app_screen_description.md`:
-- Settings root: user ID display, Products option, Clients option, Logout option
-- Products list + add/edit product form (name, price)
-- Clients list + add/edit client form (name, responsible?, nif?, address?)
-- Logout: confirm alert → clear userId from LocalStorage → switch to login
-- Needs: `ProductsListStore`, `ProductFormStore`, `ClientsListStore`, `ClientFormStore`, `SettingsStore`
-- iOS: corresponding Views + StoreWrappers
-- Android: corresponding Screens + navigation routes
-- Replace placeholders in MainTabView/MainScreen Settings tab
+### Settings (iOS + Android): COMPLETE
+- **Root**: displays App ID (large) and person name, links to Products and Clients, Logout with confirmation
+- **Products list**: name + price, empty state "No hay productos", + button
+- **Product form**: name + price, save, **delete with confirmation** (edit mode)
+- **Clients list**: name + responsible, empty state "No hay clientes", + button
+- **Client form**: name + responsible + nif + address, save, **delete with confirmation** (edit mode)
+- **Logout**: confirmation alert → dispatches `AppMessage.LoggedOut` / `AppMessageLoggedOut.shared` → clears local storage → returns to login
 
-### Phase 4 — Firebase/Firestore Integration: PENDING
-- Replace InMemory repositories with Firestore-backed ones
-- All data under user ID document in Firestore
-- iOS: Implement FirestoreBridge with real Firebase iOS SDK (SPM)
-- Android: Use existing AndroidFirestoreService
-- Add real google-services.json / GoogleService-Info.plist
+### Firebase/Firestore Integration: COMPLETE
+- All repositories use Firestore: `FirestoreSaleRepository`, `FirestoreProductRepository`, `FirestoreClientRepository`, `FirestorePurchaseRepository`, `FirestoreAppIdRepository`
+- Data isolated by App ID under `apps/{appId}/` subcollections
+- iOS: `FirestoreBridge.swift` implements `FirestoreServiceBridge` protocol using Firebase iOS SDK (SPM). `db` is lazy to avoid init before `FirebaseApp.configure()`. Uses `UIApplicationDelegateAdaptor` for proper init ordering.
+- Android: `AndroidFirestoreService` uses `firebase-firestore-ktx` with `await()`. `FirebaseApp.initializeApp(this)` called in Application class.
+- Firebase Analytics enabled on both platforms
+
+### Pending Features
+- Export sale detail (placeholder button exists)
+- Any future enhancements per `app_screen_description.md`
 
 ## Known Issues / Notes
 - `kotlin.uuid.Uuid` requires `@OptIn(ExperimentalUuidApi::class)` — used in InMemory repos

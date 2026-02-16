@@ -7,4 +7,5 @@ interface ProductRepository {
     suspend fun getProduct(id: String): Product?
     suspend fun saveProduct(product: Product): Product
     suspend fun updateProduct(product: Product): Product
+    suspend fun deleteProduct(id: String)
 }
