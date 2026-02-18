@@ -109,7 +109,7 @@ struct LoginView: View {
         }
         .background(
             ZStack {
-                (colorScheme == .dark ? Color.barksBlack : Color.barksWhite)
+                Color.clear.appBackground()
                 
                 // Bottom Pattern + Tagline
                 VStack(spacing: 8) {
@@ -149,3 +149,4 @@ struct LoginView: View {
         .animation(.easeInOut, value: store.error)
     }
 }
+
