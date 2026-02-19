@@ -87,32 +87,59 @@ struct ClientFormView: View {
     private var infoCard: some View {
         card(title: "Información") {
             VStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Nombre")
-                        .font(.omnes(13))
-                        .foregroundStyle(secondaryText)
+                clientField(label: "Nombre", placeholder: "Ej: María",
+                           text: Binding(get: { store.name }, set: { store.nameChanged($0) }),
+                           hasError: store.name.isEmpty)
 
-                    TextField("Ej: María", text: Binding(
-                        get: { store.name },
-                        set: { store.nameChanged($0) }
-                    ))
-                    .font(.omnes(17, weight: .semiBold))
-                    .foregroundStyle(primaryText)
-                    .textInputAutocapitalization(.words)
-                    .disableAutocorrection(true)
-                    .padding(.horizontal, 12)
-                    .frame(height: 48)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .strokeBorder(
-                                store.name.isEmpty
-                                ? Color.barksRed.opacity(0.4)
-                                : Color.clear,
-                                lineWidth: 1
-                            )
-                    )
-                }
+                clientField(label: "Responsable (opcional)", placeholder: "Responsable",
+                           text: Binding(get: { store.responsible }, set: { store.responsibleChanged($0) }))
+
+                clientField(label: "NIF (opcional)", placeholder: "NIF",
+                           text: Binding(get: { store.nif }, set: { store.nifChanged($0) }))
+
+                clientField(label: "Dirección (opcional)", placeholder: "Dirección",
+                           text: Binding(get: { store.address }, set: { store.addressChanged($0) }))
+
+                clientField(label: "IVA % (opcional)", placeholder: "Ej: 21",
+                           text: Binding(get: { store.ivaPct }, set: { store.ivaPctChanged($0) }),
+                           keyboardType: .decimalPad)
+
+                clientField(label: "Recargo equivalencia % (opcional)", placeholder: "Ej: 5.2",
+                           text: Binding(get: { store.recargoPct }, set: { store.recargoPctChanged($0) }),
+                           keyboardType: .decimalPad)
             }
+        }
+    }
+
+    private func clientField(
+        label: String,
+        placeholder: String,
+        text: Binding<String>,
+        hasError: Bool = false,
+        keyboardType: UIKeyboardType = .default
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(label)
+                .font(.omnes(13))
+                .foregroundStyle(secondaryText)
+
+            TextField(placeholder, text: text)
+                .font(.omnes(17, weight: .semiBold))
+                .foregroundStyle(primaryText)
+                .keyboardType(keyboardType)
+                .textInputAutocapitalization(keyboardType == .decimalPad ? .never : .words)
+                .disableAutocorrection(true)
+                .padding(.horizontal, 12)
+                .frame(height: 48)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(
+                            hasError
+                            ? Color.barksRed.opacity(0.4)
+                            : Color.clear,
+                            lineWidth: 1
+                        )
+                )
         }
     }
 

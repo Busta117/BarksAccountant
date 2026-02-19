@@ -7,9 +7,9 @@ import kotlin.uuid.Uuid
 @OptIn(ExperimentalUuidApi::class)
 class InMemoryClientRepository : ClientRepository {
     private val clients = mutableListOf(
-        Client(id = "c1", name = "Juan García", responsible = "María", nif = "12345678A", address = "Calle Mayor 1"),
-        Client(id = "c2", name = "Ana López", responsible = null, nif = null, address = "Av. Libertad 23"),
-        Client(id = "c3", name = "Pedro Martínez", responsible = "Carlos", nif = "87654321B", address = null)
+        Client(id = "c1", name = "Juan García", responsible = "María", nif = "12345678A", address = "Calle Mayor 1", ivaPct = null, recargoPct = null),
+        Client(id = "c2", name = "Ana López", responsible = null, nif = null, address = "Av. Libertad 23", ivaPct = null, recargoPct = null),
+        Client(id = "c3", name = "Pedro Martínez", responsible = "Carlos", nif = "87654321B", address = null, ivaPct = null, recargoPct = null)
     )
 
     override suspend fun getClients(): List<Client> {

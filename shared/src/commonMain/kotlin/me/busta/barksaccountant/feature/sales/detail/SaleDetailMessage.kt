@@ -11,5 +11,11 @@ sealed interface SaleDetailMessage {
     data object ConfirmDelivered : SaleDetailMessage
     data class SaleUpdated(val sale: Sale) : SaleDetailMessage
     data object DismissConfirm : SaleDetailMessage
+    data object ExportTapped : SaleDetailMessage
+    data class InvoiceGenerated(val html: String) : SaleDetailMessage
+    data object InvoiceDismissed : SaleDetailMessage
+    data object ShareSummaryTapped : SaleDetailMessage
+    data class SummaryGenerated(val html: String) : SaleDetailMessage
+    data object SummaryDismissed : SaleDetailMessage
     data class ErrorOccurred(val error: String) : SaleDetailMessage
 }

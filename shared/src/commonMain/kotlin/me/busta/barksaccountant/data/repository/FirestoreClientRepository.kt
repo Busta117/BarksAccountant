@@ -43,6 +43,8 @@ class FirestoreClientRepository(
         client.responsible?.let { map["responsible"] = it }
         client.nif?.let { map["nif"] = it }
         client.address?.let { map["address"] = it }
+        client.ivaPct?.let { map["ivaPct"] = it }
+        client.recargoPct?.let { map["recargoPct"] = it }
         return map
     }
 
@@ -52,7 +54,9 @@ class FirestoreClientRepository(
             name = data["name"] as? String ?: "",
             responsible = data["responsible"] as? String,
             nif = data["nif"] as? String,
-            address = data["address"] as? String
+            address = data["address"] as? String,
+            ivaPct = (data["ivaPct"] as? Number)?.toDouble(),
+            recargoPct = (data["recargoPct"] as? Number)?.toDouble()
         )
     }
 }

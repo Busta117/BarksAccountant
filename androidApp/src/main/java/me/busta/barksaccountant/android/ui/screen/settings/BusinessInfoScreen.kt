@@ -14,21 +14,19 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import me.busta.barksaccountant.android.ui.theme.BarksCard
 import me.busta.barksaccountant.android.ui.theme.BarksRed
@@ -46,55 +45,49 @@ import me.busta.barksaccountant.android.ui.theme.BarksWhite
 import me.busta.barksaccountant.android.ui.theme.barksColors
 import me.busta.barksaccountant.android.ui.theme.omnesStyle
 import me.busta.barksaccountant.di.ServiceLocator
-import me.busta.barksaccountant.feature.settings.clients.form.ClientFormMessage
-import me.busta.barksaccountant.feature.settings.clients.form.ClientFormStore
+import me.busta.barksaccountant.feature.settings.businessinfo.BusinessInfoMessage
+import me.busta.barksaccountant.feature.settings.businessinfo.BusinessInfoStore
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClientFormScreen(
+fun BusinessInfoScreen(
     serviceLocator: ServiceLocator,
-    clientId: String?,
     onSaved: () -> Unit,
     onBack: () -> Unit
 ) {
     val store = remember {
-        ClientFormStore(clientRepository = serviceLocator.clientRepository)
+        BusinessInfoStore(businessInfoRepository = serviceLocator.businessInfoRepository)
     }
     val state by store.state.collectAsState()
     val colors = barksColors()
 
-    LaunchedEffect(Unit) { store.dispatch(ClientFormMessage.Started(clientId)) }
+    LaunchedEffect(Unit) { store.dispatch(BusinessInfoMessage.Started) }
     DisposableEffect(Unit) { onDispose { store.dispose() } }
     LaunchedEffect(state.savedSuccessfully) { if (state.savedSuccessfully) onSaved() }
-    LaunchedEffect(state.deletedSuccessfully) { if (state.deletedSuccessfully) onSaved() }
-
-    if (state.showDeleteConfirm) {
-        AlertDialog(
-            onDismissRequest = { store.dispatch(ClientFormMessage.DismissDelete) },
-            title = { Text("Eliminar cliente") },
-            text = { Text("¿Estás seguro de que quieres eliminar este cliente?") },
-            confirmButton = {
-                TextButton(onClick = { store.dispatch(ClientFormMessage.ConfirmDelete) }) {
-                    Text("Eliminar", color = BarksRed)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { store.dispatch(ClientFormMessage.DismissDelete) }) {
-                    Text("Cancelar")
-                }
-            }
-        )
-    }
 
     Scaffold(
+        containerColor = colors.screenBackground,
         topBar = {
             TopAppBar(
-                title = { Text(if (state.isEditing) "Editar Cliente" else "Nuevo Cliente") },
+                title = {
+                    Text(
+                        text = "Datos del negocio",
+                        style = omnesStyle(17, FontWeight.SemiBold),
+                        color = colors.primaryText
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Volver",
+                            tint = colors.primaryText
+                        )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colors.screenBackground
+                )
             )
         }
     ) { padding ->
@@ -110,18 +103,16 @@ fun ClientFormScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                // Info Card (all 4 fields to keep Android functionality)
                 BarksCard(title = "Información", colors = colors) {
                     Column {
-                        // Name field
-                        FieldLabel(text = "Nombre", colors = colors)
+                        InfoFieldLabel(text = "Nombre del negocio", colors = colors)
                         Spacer(Modifier.height(6.dp))
-                        CustomTextField(
-                            value = state.name,
-                            onValueChange = { store.dispatch(ClientFormMessage.NameChanged(it)) },
-                            placeholder = "Ej: María",
+                        InfoTextField(
+                            value = state.businessName,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.BusinessNameChanged(it)) },
+                            placeholder = "Ej: Mi Empresa S.L.",
                             colors = colors,
-                            hasError = state.name.isEmpty(),
+                            hasError = state.businessName.isEmpty(),
                             keyboardOptions = KeyboardOptions(
                                 capitalization = KeyboardCapitalization.Words
                             )
@@ -129,42 +120,24 @@ fun ClientFormScreen(
 
                         Spacer(Modifier.height(14.dp))
 
-                        // Responsable field (optional)
-                        FieldLabel(text = "Responsable (opcional)", colors = colors)
+                        InfoFieldLabel(text = "NIF (opcional)", colors = colors)
                         Spacer(Modifier.height(6.dp))
-                        CustomTextField(
-                            value = state.responsible,
-                            onValueChange = { store.dispatch(ClientFormMessage.ResponsibleChanged(it)) },
-                            placeholder = "Responsable",
-                            colors = colors,
-                            hasError = false,
-                            keyboardOptions = KeyboardOptions(
-                                capitalization = KeyboardCapitalization.Words
-                            )
-                        )
-
-                        Spacer(Modifier.height(14.dp))
-
-                        // NIF field (optional)
-                        FieldLabel(text = "NIF (opcional)", colors = colors)
-                        Spacer(Modifier.height(6.dp))
-                        CustomTextField(
+                        InfoTextField(
                             value = state.nif,
-                            onValueChange = { store.dispatch(ClientFormMessage.NifChanged(it)) },
-                            placeholder = "NIF",
+                            onValueChange = { store.dispatch(BusinessInfoMessage.NifChanged(it)) },
+                            placeholder = "Ej: B12345678",
                             colors = colors,
                             hasError = false
                         )
 
                         Spacer(Modifier.height(14.dp))
 
-                        // Address field (optional)
-                        FieldLabel(text = "Dirección (opcional)", colors = colors)
+                        InfoFieldLabel(text = "Dirección (opcional)", colors = colors)
                         Spacer(Modifier.height(6.dp))
-                        CustomTextField(
+                        InfoTextField(
                             value = state.address,
-                            onValueChange = { store.dispatch(ClientFormMessage.AddressChanged(it)) },
-                            placeholder = "Dirección",
+                            onValueChange = { store.dispatch(BusinessInfoMessage.AddressChanged(it)) },
+                            placeholder = "Dirección del negocio",
                             colors = colors,
                             hasError = false,
                             multiline = true,
@@ -173,46 +146,89 @@ fun ClientFormScreen(
 
                         Spacer(Modifier.height(14.dp))
 
-                        // IVA field (optional)
-                        FieldLabel(text = "IVA % (opcional)", colors = colors)
+                        InfoFieldLabel(text = "Teléfono (opcional)", colors = colors)
                         Spacer(Modifier.height(6.dp))
-                        CustomTextField(
-                            value = state.ivaPct,
-                            onValueChange = { store.dispatch(ClientFormMessage.IvaPctChanged(it)) },
-                            placeholder = "Ej: 21",
+                        InfoTextField(
+                            value = state.phone,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.PhoneChanged(it)) },
+                            placeholder = "Teléfono",
                             colors = colors,
                             hasError = false,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                         )
 
                         Spacer(Modifier.height(14.dp))
 
-                        // Recargo de equivalencia field (optional)
-                        FieldLabel(text = "Recargo equivalencia % (opcional)", colors = colors)
+                        InfoFieldLabel(text = "Email (opcional)", colors = colors)
                         Spacer(Modifier.height(6.dp))
-                        CustomTextField(
-                            value = state.recargoPct,
-                            onValueChange = { store.dispatch(ClientFormMessage.RecargoPctChanged(it)) },
-                            placeholder = "Ej: 5.2",
+                        InfoTextField(
+                            value = state.email,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.EmailChanged(it)) },
+                            placeholder = "Email",
                             colors = colors,
                             hasError = false,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                         )
                     }
                 }
 
                 Spacer(Modifier.height(12.dp))
 
-                // Save Card
+                BarksCard(title = "Información bancaria (opcional)", colors = colors) {
+                    Column {
+                        InfoFieldLabel(text = "Banco", colors = colors)
+                        Spacer(Modifier.height(6.dp))
+                        InfoTextField(
+                            value = state.bankName,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.BankNameChanged(it)) },
+                            placeholder = "Ej: Banco Santander",
+                            colors = colors,
+                            hasError = false,
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Words
+                            )
+                        )
+
+                        Spacer(Modifier.height(14.dp))
+
+                        InfoFieldLabel(text = "IBAN", colors = colors)
+                        Spacer(Modifier.height(6.dp))
+                        InfoTextField(
+                            value = state.iban,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.IbanChanged(it)) },
+                            placeholder = "Ej: ES12 1234 5678 9012 3456 7890",
+                            colors = colors,
+                            hasError = false
+                        )
+
+                        Spacer(Modifier.height(14.dp))
+
+                        InfoFieldLabel(text = "Titular", colors = colors)
+                        Spacer(Modifier.height(6.dp))
+                        InfoTextField(
+                            value = state.bankHolder,
+                            onValueChange = { store.dispatch(BusinessInfoMessage.BankHolderChanged(it)) },
+                            placeholder = "Titular de la cuenta",
+                            colors = colors,
+                            hasError = false,
+                            keyboardOptions = KeyboardOptions(
+                                capitalization = KeyboardCapitalization.Words
+                            )
+                        )
+                    }
+                }
+
+                Spacer(Modifier.height(12.dp))
+
                 BarksCard(colors = colors) {
                     Column {
                         Button(
-                            onClick = { store.dispatch(ClientFormMessage.SaveTapped) },
+                            onClick = { store.dispatch(BusinessInfoMessage.SaveTapped) },
                             enabled = state.canSave && !state.isSaving,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(52.dp),
-                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            colors = ButtonDefaults.buttonColors(
                                 containerColor = BarksRed,
                                 contentColor = BarksWhite,
                                 disabledContainerColor = BarksRed.copy(alpha = 0.6f),
@@ -245,36 +261,13 @@ fun ClientFormScreen(
                         }
                     }
                 }
-
-                // Delete Card (only in edit mode)
-                if (state.isEditing) {
-                    Spacer(Modifier.height(12.dp))
-                    BarksCard(colors = colors) {
-                        OutlinedButton(
-                            onClick = { store.dispatch(ClientFormMessage.DeleteTapped) },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(52.dp),
-                            shape = RoundedCornerShape(14.dp),
-                            border = androidx.compose.foundation.BorderStroke(1.5.dp, BarksRed),
-                            colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
-                                contentColor = BarksRed
-                            )
-                        ) {
-                            Text(
-                                text = "Eliminar cliente",
-                                style = omnesStyle(16, FontWeight.SemiBold)
-                            )
-                        }
-                    }
-                }
             }
         }
     }
 }
 
 @Composable
-private fun FieldLabel(
+private fun InfoFieldLabel(
     text: String,
     colors: me.busta.barksaccountant.android.ui.theme.BarksColors
 ) {
@@ -286,7 +279,7 @@ private fun FieldLabel(
 }
 
 @Composable
-private fun CustomTextField(
+private fun InfoTextField(
     value: String,
     onValueChange: (String) -> Unit,
     placeholder: String,

@@ -7,5 +7,9 @@ data class SaleDetailState(
     val isLoading: Boolean = false,
     val showPayConfirm: Boolean = false,
     val showDeliverConfirm: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val invoiceHtml: String? = null,
+    val isGeneratingInvoice: Boolean = false,
+    val summaryHtml: String? = null,
+    val isGeneratingSummary: Boolean = false
 )

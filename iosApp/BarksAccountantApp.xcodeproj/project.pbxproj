@@ -48,6 +48,9 @@
 		B10065 /* Omnes Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10065 /* Omnes Medium.ttf */; };
 		B10066 /* Omnes Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A10066 /* Omnes Light.ttf */; };
 		E6D364152F45C84900684FA1 /* AppBackgroundModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D364142F45C84900684FA1 /* AppBackgroundModifier.swift */; };
+		B10070 /* BusinessInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10070 /* BusinessInfoView.swift */; };
+		B10071 /* BusinessInfoStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10071 /* BusinessInfoStoreWrapper.swift */; };
+		B10072 /* InvoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10072 /* InvoiceView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -92,6 +95,9 @@
 		B10030 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B10099 /* BarksAccountantApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BarksAccountantApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E6D364142F45C84900684FA1 /* AppBackgroundModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppBackgroundModifier.swift; sourceTree = "<group>"; };
+		A10070 /* BusinessInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessInfoView.swift; sourceTree = "<group>"; };
+		A10071 /* BusinessInfoStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessInfoStoreWrapper.swift; sourceTree = "<group>"; };
+		A10072 /* InvoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -157,6 +163,7 @@
 				B10019 /* SaleFormStoreWrapper.swift */,
 				B10020 /* ClientPickerSheet.swift */,
 				B10021 /* ProductPickerSheet.swift */,
+				A10072 /* InvoiceView.swift */,
 			);
 			path = Sales;
 			sourceTree = "<group>";
@@ -184,6 +191,8 @@
 				A10050 /* ClientsListStoreWrapper.swift */,
 				A10051 /* ClientFormView.swift */,
 				A10052 /* ClientFormStoreWrapper.swift */,
+				A10070 /* BusinessInfoView.swift */,
+				A10071 /* BusinessInfoStoreWrapper.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -366,6 +375,9 @@
 				B10053 /* StatsView.swift in Sources */,
 				B10054 /* StatsStoreWrapper.swift in Sources */,
 				B10060 /* Theme.swift in Sources */,
+				B10070 /* BusinessInfoView.swift in Sources */,
+				B10071 /* BusinessInfoStoreWrapper.swift in Sources */,
+				B10072 /* InvoiceView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -5,5 +5,7 @@ data class Client(
     val name: String,
     val responsible: String?,
     val nif: String?,
-    val address: String?
+    val address: String?,
+    val ivaPct: Double?,
+    val recargoPct: Double?
 )

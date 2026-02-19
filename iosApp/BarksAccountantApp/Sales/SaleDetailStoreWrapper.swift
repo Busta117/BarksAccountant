@@ -8,12 +8,20 @@ final class SaleDetailStoreWrapper {
     private(set) var showPayConfirm: Bool = false
     private(set) var showDeliverConfirm: Bool = false
     private(set) var error: String? = nil
+    private(set) var invoiceHtml: String? = nil
+    private(set) var isGeneratingInvoice: Bool = false
+    private(set) var summaryHtml: String? = nil
+    private(set) var isGeneratingSummary: Bool = false
 
     private let store: SaleDetailStore
     private var collector: FlowCollector<SaleDetailState>?
 
-    init(saleRepository: SaleRepository) {
-        self.store = SaleDetailStore(saleRepository: saleRepository)
+    init(saleRepository: SaleRepository, clientRepository: ClientRepository, businessInfoRepository: BusinessInfoRepository) {
+        self.store = SaleDetailStore(
+            saleRepository: saleRepository,
+            clientRepository: clientRepository,
+            businessInfoRepository: businessInfoRepository
+        )
     }
 
     func start(saleId: String) {
@@ -26,6 +34,10 @@ final class SaleDetailStoreWrapper {
                 self.showPayConfirm = state.showPayConfirm
                 self.showDeliverConfirm = state.showDeliverConfirm
                 self.error = state.error
+                self.invoiceHtml = state.invoiceHtml
+                self.isGeneratingInvoice = state.isGeneratingInvoice
+                self.summaryHtml = state.summaryHtml
+                self.isGeneratingSummary = state.isGeneratingSummary
             }
         )
         store.dispatch(message: SaleDetailMessageStarted(saleId: saleId))
@@ -49,6 +61,22 @@ final class SaleDetailStoreWrapper {
 
     func dismissConfirm() {
         store.dispatch(message: SaleDetailMessageDismissConfirm.shared)
+    }
+
+    func exportInvoice() {
+        store.dispatch(message: SaleDetailMessageExportTapped.shared)
+    }
+
+    func dismissInvoice() {
+        store.dispatch(message: SaleDetailMessageInvoiceDismissed.shared)
+    }
+
+    func shareSummary() {
+        store.dispatch(message: SaleDetailMessageShareSummaryTapped.shared)
+    }
+
+    func dismissSummary() {
+        store.dispatch(message: SaleDetailMessageSummaryDismissed.shared)
     }
 
     deinit {

@@ -16,12 +16,12 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = BarksBlack,
     error = BarksRed,
     onError = Color.White,
-    background = Color.White,
+    background = BarksWhite,
     onBackground = BarksPrincipal,
-    surface = Color.White,
+    surface = BarksWhite,
     onSurface = BarksPrincipal,
-    onSurfaceVariant = BarksPrincipal.copy(alpha = 0.6f),
-    surfaceVariant = Color(0xFFF5F5F5),
+    onSurfaceVariant = BarksPrincipal.copy(alpha = 0.65f),
+    surfaceVariant = BarksLightBlue.copy(alpha = 0.25f),
     outline = BarksPrincipal.copy(alpha = 0.3f),
 )
 
@@ -34,12 +34,12 @@ private val DarkColorScheme = darkColorScheme(
     onSecondary = BarksBlack,
     error = BarksRed,
     onError = Color.White,
-    background = Color(0xFF121212),
+    background = BarksBlack,
     onBackground = BarksPrincipalDark,
-    surface = Color(0xFF121212),
+    surface = BarksBlack,
     onSurface = BarksPrincipalDark,
-    onSurfaceVariant = BarksPrincipalDark.copy(alpha = 0.6f),
-    surfaceVariant = Color(0xFF2C2C2C),
+    onSurfaceVariant = BarksPrincipalDark.copy(alpha = 0.60f),
+    surfaceVariant = Color.White.copy(alpha = 0.06f),
     outline = BarksPrincipalDark.copy(alpha = 0.3f),
 )
 

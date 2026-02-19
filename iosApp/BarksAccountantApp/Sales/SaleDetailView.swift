@@ -9,6 +9,8 @@ struct SaleDetailView: View {
 
     @State private var store: SaleDetailStoreWrapper
     @State private var showEditForm = false
+    @State private var showInvoice = false
+    @State private var showSummary = false
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -23,7 +25,9 @@ struct SaleDetailView: View {
         self.personName = personName
         self.onSaleUpdated = onSaleUpdated
         _store = State(initialValue: SaleDetailStoreWrapper(
-            saleRepository: serviceLocator.saleRepository
+            saleRepository: serviceLocator.saleRepository,
+            clientRepository: serviceLocator.clientRepository,
+            businessInfoRepository: serviceLocator.businessInfoRepository
         ))
     }
 
@@ -103,6 +107,22 @@ struct SaleDetailView: View {
             Text("¿Desea marcar esta venta como entregada?")
         }
         .onAppear { store.start(saleId: saleId) }
+        .onChange(of: store.invoiceHtml) { _, html in
+            showInvoice = html != nil
+        }
+        .navigationDestination(isPresented: $showInvoice) {
+            if let html = store.invoiceHtml {
+                InvoiceView(invoiceHtml: html, saleId: saleId)
+            }
+        }
+        .onChange(of: store.summaryHtml) { _, html in
+            showSummary = html != nil
+        }
+        .navigationDestination(isPresented: $showSummary) {
+            if let html = store.summaryHtml {
+                InvoiceView(invoiceHtml: html, saleId: saleId, documentName: "Resumen")
+            }
+        }
     }
 
     @ViewBuilder
@@ -212,12 +232,17 @@ struct SaleDetailView: View {
                             .buttonStyle(PrimaryActionButtonStyle(tint: .barksRed))
                         }
 
-                        Button("Exportar") {
-                            // TODO: Implement export
+                        Button(store.isGeneratingInvoice ? "Generando..." : "Ver factura") {
+                            store.exportInvoice()
                         }
                         .buttonStyle(SecondaryActionButtonStyle(tint: .barksLightBlue))
-                        .disabled(true)
-                        .opacity(0.6)
+                        .disabled(store.isGeneratingInvoice)
+
+                        Button(store.isGeneratingSummary ? "Generando..." : "Compartir resumen") {
+                            store.shareSummary()
+                        }
+                        .buttonStyle(SecondaryActionButtonStyle(tint: .barksLightBlue))
+                        .disabled(store.isGeneratingSummary)
                     }
                 }
             }

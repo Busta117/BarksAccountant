@@ -7,6 +7,8 @@ data class ClientFormState(
     val responsible: String = "",
     val nif: String = "",
     val address: String = "",
+    val ivaPct: String = "",
+    val recargoPct: String = "",
     val isSaving: Boolean = false,
     val savedSuccessfully: Boolean = false,
     val showDeleteConfirm: Boolean = false,

@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,18 +15,17 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -36,9 +34,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import me.busta.barksaccountant.android.ui.theme.BarksLightBlue
 import me.busta.barksaccountant.android.ui.theme.BarksRed
+import me.busta.barksaccountant.android.ui.theme.BarksFab
+import me.busta.barksaccountant.android.ui.theme.barksColors
+import me.busta.barksaccountant.android.ui.theme.omnesStyle
+import me.busta.barksaccountant.android.ui.theme.vagRundschriftStyle
 import me.busta.barksaccountant.di.ServiceLocator
 import me.busta.barksaccountant.feature.sales.list.SalesListMessage
 import me.busta.barksaccountant.feature.sales.list.SalesListStore
@@ -53,6 +59,7 @@ fun SalesListScreen(
 ) {
     val store = remember { SalesListStore(saleRepository = serviceLocator.saleRepository) }
     val state by store.state.collectAsState()
+    val colors = barksColors()
 
     LaunchedEffect(Unit) {
         store.dispatch(SalesListMessage.Started)
@@ -65,14 +72,22 @@ fun SalesListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Ventas") },
-                actions = {
-                    IconButton(onClick = onNewSale) {
-                        Icon(Icons.Default.Add, contentDescription = "Nueva venta")
-                    }
-                }
+                title = {
+                    Text(
+                        "Ventas",
+                        style = omnesStyle(20, FontWeight.SemiBold),
+                        color = colors.primaryText
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colors.screenBackground
+                )
             )
-        }
+        },
+        floatingActionButton = {
+            BarksFab(onClick = onNewSale)
+        },
+        containerColor = colors.screenBackground
     ) { padding ->
         when {
             state.isLoading && state.sales.isEmpty() -> {
@@ -82,7 +97,7 @@ fun SalesListScreen(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(color = BarksRed)
                 }
             }
             state.error != null && state.sales.isEmpty() -> {
@@ -95,11 +110,16 @@ fun SalesListScreen(
                 ) {
                     Text(
                         state.error ?: "",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = omnesStyle(17),
+                        color = colors.primaryText.copy(alpha = 0.7f)
                     )
                     Spacer(Modifier.height(12.dp))
                     TextButton(onClick = { store.dispatch(SalesListMessage.Started) }) {
-                        Text("Reintentar")
+                        Text(
+                            "Reintentar",
+                            style = omnesStyle(15, FontWeight.SemiBold),
+                            color = BarksRed
+                        )
                     }
                 }
             }
@@ -112,8 +132,8 @@ fun SalesListScreen(
                 ) {
                     Text(
                         "No hay ventas",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = vagRundschriftStyle(20),
+                        color = colors.primaryText.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -121,11 +141,20 @@ fun SalesListScreen(
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding)
+                        .background(colors.screenBackground)
+                        .padding(padding),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 16.dp,
+                        vertical = 8.dp
+                    )
                 ) {
                     items(state.sales, key = { it.id }) { sale ->
-                        SaleRow(sale = sale, onClick = { onSaleClick(sale.id) })
-                        HorizontalDivider()
+                        SaleCardRow(
+                            sale = sale,
+                            onClick = { onSaleClick(sale.id) },
+                            colors = colors
+                        )
+                        Spacer(Modifier.height(8.dp))
                     }
                 }
             }
@@ -134,50 +163,92 @@ fun SalesListScreen(
 }
 
 @Composable
-private fun SaleRow(sale: Sale, onClick: () -> Unit) {
+private fun SaleCardRow(
+    sale: Sale,
+    onClick: () -> Unit,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    val shadowColor = Color.Black.copy(alpha = if (colors.isDark) 0.22f else 0.08f)
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(18.dp),
+                ambientColor = shadowColor,
+                spotColor = shadowColor
+            )
+            .clip(RoundedCornerShape(18.dp))
+            .background(colors.cardBackground)
             .clickable(onClick = onClick)
+            .padding(vertical = 14.dp, horizontal = 16.dp),
+        verticalAlignment = Alignment.Top
     ) {
+        // Red left border for unpaid sales
         if (!sale.isPaid) {
             Box(
                 modifier = Modifier
                     .width(4.dp)
-                    .fillMaxHeight()
+                    .height(60.dp) // approximate height to match card content
+                    .clip(RoundedCornerShape(2.dp))
                     .background(BarksRed)
+            )
+            Spacer(Modifier.width(12.dp))
+        }
+
+        // Content
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+            // Client name
+            Text(
+                text = sale.clientName,
+                style = omnesStyle(17, FontWeight.SemiBold),
+                color = colors.primaryText
+            )
+
+            Spacer(Modifier.height(6.dp))
+
+            // Date with calendar icon
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = null,
+                    tint = BarksLightBlue,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+                Text(
+                    text = sale.orderDate,
+                    style = omnesStyle(15),
+                    color = colors.secondaryText
+                )
+            }
+
+            Spacer(Modifier.height(6.dp))
+
+            // Status text
+            Text(
+                text = if (sale.isPaid) "Pagada" else "Pendiente",
+                style = omnesStyle(13, FontWeight.SemiBold),
+                color = if (sale.isPaid) {
+                    colors.secondaryText
+                } else {
+                    BarksRed.copy(alpha = if (colors.isDark) 0.9f else 1.0f)
+                }
             )
         }
 
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(
-                    start = if (sale.isPaid) 16.dp else 12.dp,
-                    end = 16.dp,
-                    top = 12.dp,
-                    bottom = 12.dp
-                )
-        ) {
-            Text(
-                text = sale.clientName,
-                style = MaterialTheme.typography.titleMedium
-            )
-            Spacer(Modifier.height(4.dp))
-            Row {
-                Text(
-                    text = sale.orderDate,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = "\u20ac%.2f".format(sale.totalPrice),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
+        Spacer(Modifier.width(12.dp))
+
+        // Price (right-aligned)
+        Text(
+            text = "€%.2f".format(sale.totalPrice),
+            style = omnesStyle(17, FontWeight.SemiBold),
+            color = colors.primaryText
+        )
     }
 }

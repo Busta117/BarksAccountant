@@ -1,5 +1,6 @@
 package me.busta.barksaccountant.android.ui.screen.stats
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,22 +11,17 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -38,7 +34,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import me.busta.barksaccountant.android.ui.theme.BarksCard
+import me.busta.barksaccountant.android.ui.theme.BarksRed
+import me.busta.barksaccountant.android.ui.theme.barksColors
+import me.busta.barksaccountant.android.ui.theme.omnesStyle
 import me.busta.barksaccountant.di.ServiceLocator
 import me.busta.barksaccountant.feature.stats.StatsMessage
 import me.busta.barksaccountant.feature.stats.StatsStore
@@ -48,7 +49,6 @@ private val monthNames = listOf(
     "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StatsScreen(serviceLocator: ServiceLocator) {
     val store = remember {
@@ -58,51 +58,61 @@ fun StatsScreen(serviceLocator: ServiceLocator) {
         )
     }
     val state by store.state.collectAsState()
+    val colors = barksColors()
 
     LaunchedEffect(Unit) { store.dispatch(StatsMessage.Started) }
     DisposableEffect(Unit) { onDispose { store.dispose() } }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Stats") }) }
-    ) { padding ->
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.screenBackground)
+    ) {
         when {
             state.isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator() }
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
             state.error != null -> {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(state.error ?: "", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        text = state.error ?: "",
+                        style = omnesStyle(17),
+                        color = colors.secondaryText
+                    )
                     Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { store.dispatch(StatsMessage.Started) }) {
+                    Button(
+                        onClick = { store.dispatch(StatsMessage.Started) },
+                        colors = ButtonDefaults.buttonColors(containerColor = BarksRed)
+                    ) {
                         Text("Reintentar")
                     }
                 }
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                        .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = androidx.compose.foundation.layout.PaddingValues(
+                        horizontal = 16.dp,
+                        vertical = 12.dp
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    item { Spacer(Modifier.height(4.dp)) }
-                    item { FilterSection(state, store) }
-                    item { FinancialSection(state) }
-                    item { CountersSection(state) }
+                    item { FilterSection(state, store, colors) }
+                    item { FinancialSection(state, colors) }
+                    item { CountersSection(state, colors) }
                     if (state.selectedMonth == null) {
-                        item { MonthlySection(state) }
+                        item { MonthlySection(state, colors) }
                     }
-                    item { ProductsSection(state) }
-                    item { ClientsSection(state) }
-                    item { Spacer(Modifier.height(8.dp)) }
+                    item { ProductsSection(state, colors) }
+                    item { ClientsSection(state, colors) }
                 }
             }
         }
@@ -113,67 +123,118 @@ fun StatsScreen(serviceLocator: ServiceLocator) {
 @Composable
 private fun FilterSection(
     state: me.busta.barksaccountant.feature.stats.StatsState,
-    store: StatsStore
+    store: StatsStore,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
 ) {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        // Year dropdown
-        var yearExpanded by remember { mutableStateOf(false) }
-        ExposedDropdownMenuBox(
-            expanded = yearExpanded,
-            onExpandedChange = { yearExpanded = it }
-        ) {
-            OutlinedTextField(
-                value = if (state.selectedYear > 0) state.selectedYear.toString() else "",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Año") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = yearExpanded) },
-                modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
-            )
-            ExposedDropdownMenu(expanded = yearExpanded, onDismissRequest = { yearExpanded = false }) {
-                state.availableYears.forEach { year ->
-                    DropdownMenuItem(
-                        text = { Text(year.toString()) },
-                        onClick = {
-                            store.dispatch(StatsMessage.YearSelected(year))
-                            yearExpanded = false
-                        }
+    BarksCard(title = "Filtro", colors = colors) {
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Year dropdown (segmented picker style on iOS, but we use dropdown)
+            if (state.availableYears.isNotEmpty()) {
+                var yearExpanded by remember { mutableStateOf(false) }
+                ExposedDropdownMenuBox(
+                    expanded = yearExpanded,
+                    onExpandedChange = { yearExpanded = it }
+                ) {
+                    OutlinedTextField(
+                        value = if (state.selectedYear > 0) state.selectedYear.toString() else "",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Año", style = omnesStyle(15), color = colors.secondaryText) },
+                        textStyle = omnesStyle(15, FontWeight.SemiBold).copy(color = colors.primaryText),
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = yearExpanded)
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = BarksRed,
+                            unfocusedBorderColor = colors.fieldBorder,
+                            focusedContainerColor = colors.fieldBackground,
+                            unfocusedContainerColor = colors.fieldBackground
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                     )
+                    ExposedDropdownMenu(
+                        expanded = yearExpanded,
+                        onDismissRequest = { yearExpanded = false }
+                    ) {
+                        state.availableYears.forEach { year ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        year.toString(),
+                                        style = omnesStyle(15),
+                                        color = colors.primaryText
+                                    )
+                                },
+                                onClick = {
+                                    store.dispatch(StatsMessage.YearSelected(year))
+                                    yearExpanded = false
+                                }
+                            )
+                        }
+                    }
                 }
             }
-        }
 
-        // Month dropdown
-        var monthExpanded by remember { mutableStateOf(false) }
-        val monthLabel = if (state.selectedMonth == null) "Todos" else monthNames[(state.selectedMonth ?: 1) - 1]
-        ExposedDropdownMenuBox(
-            expanded = monthExpanded,
-            onExpandedChange = { monthExpanded = it }
-        ) {
-            OutlinedTextField(
-                value = monthLabel,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Mes") },
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = monthExpanded) },
-                modifier = Modifier.fillMaxWidth().menuAnchor(MenuAnchorType.PrimaryNotEditable)
-            )
-            ExposedDropdownMenu(expanded = monthExpanded, onDismissRequest = { monthExpanded = false }) {
-                DropdownMenuItem(
-                    text = { Text("Todos") },
-                    onClick = {
-                        store.dispatch(StatsMessage.MonthSelected(null))
-                        monthExpanded = false
-                    }
+            // Month dropdown
+            var monthExpanded by remember { mutableStateOf(false) }
+            val monthLabel = if (state.selectedMonth == null) "Todos" else monthNames[(state.selectedMonth ?: 1) - 1]
+            ExposedDropdownMenuBox(
+                expanded = monthExpanded,
+                onExpandedChange = { monthExpanded = it }
+            ) {
+                OutlinedTextField(
+                    value = monthLabel,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("Mes", style = omnesStyle(15), color = colors.secondaryText) },
+                    textStyle = omnesStyle(15, FontWeight.SemiBold).copy(color = colors.primaryText),
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = monthExpanded)
+                    },
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = BarksRed,
+                        unfocusedBorderColor = colors.fieldBorder,
+                        focusedContainerColor = colors.fieldBackground,
+                        unfocusedContainerColor = colors.fieldBackground
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable)
                 )
-                monthNames.forEachIndexed { index, name ->
+                ExposedDropdownMenu(
+                    expanded = monthExpanded,
+                    onDismissRequest = { monthExpanded = false }
+                ) {
                     DropdownMenuItem(
-                        text = { Text(name) },
+                        text = {
+                            Text(
+                                "Todos",
+                                style = omnesStyle(15),
+                                color = colors.primaryText
+                            )
+                        },
                         onClick = {
-                            store.dispatch(StatsMessage.MonthSelected(index + 1))
+                            store.dispatch(StatsMessage.MonthSelected(null))
                             monthExpanded = false
                         }
                     )
+                    monthNames.forEachIndexed { index, name ->
+                        DropdownMenuItem(
+                            text = {
+                                Text(
+                                    name,
+                                    style = omnesStyle(15),
+                                    color = colors.primaryText
+                                )
+                            },
+                            onClick = {
+                                store.dispatch(StatsMessage.MonthSelected(index + 1))
+                                monthExpanded = false
+                            }
+                        )
+                    }
                 }
             }
         }
@@ -181,74 +242,60 @@ private fun FilterSection(
 }
 
 @Composable
-private fun FinancialSection(state: me.busta.barksaccountant.feature.stats.StatsState) {
-    SectionCard(title = "Resumen") {
+private fun FinancialSection(
+    state: me.busta.barksaccountant.feature.stats.StatsState,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    BarksCard(title = "Resumen", colors = colors) {
         if (state.salesCount == 0 && state.totalPurchases == 0.0) {
-            EmptyMessage()
+            EmptyMessage(colors)
         } else {
-            StatRow("Ventas totales", formatCurrency(state.totalSales))
-            StatRow("Compras totales", formatCurrency(state.totalPurchases))
-            StatRow(
-                "Ganancia neta",
-                formatCurrency(state.netProfit),
-                valueColor = if (state.netProfit >= 0) Color(0xFF2E7D32) else MaterialTheme.colorScheme.error
-            )
-            StatRow("Margen", "%.1f%%".format(state.marginPercent))
-        }
-    }
-}
-
-@Composable
-private fun CountersSection(state: me.busta.barksaccountant.feature.stats.StatsState) {
-    SectionCard(title = "Indicadores") {
-        if (state.salesCount == 0) {
-            EmptyMessage()
-        } else {
-            StatRow("Cantidad de ventas", "${state.salesCount}")
-            StatRow("Ticket promedio", formatCurrency(state.averageTicket))
-            StatRow("Pendiente de pago", formatCurrency(state.unpaidTotal))
-            StatRow("Sin entregar", "${state.undeliveredCount}")
-        }
-    }
-}
-
-@Composable
-private fun MonthlySection(state: me.busta.barksaccountant.feature.stats.StatsState) {
-    SectionCard(title = "Desglose mensual") {
-        if (state.monthlyBreakdown.isEmpty()) {
-            EmptyMessage()
-        } else {
-            state.monthlyBreakdown.forEach { item ->
-                StatRow(monthNames[item.month - 1], formatCurrency(item.total))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatRow("Ventas totales", formatCurrency(state.totalSales), colors)
+                StatRow("Compras totales", formatCurrency(state.totalPurchases), colors)
+                StatRow(
+                    "Ganancia neta",
+                    formatCurrency(state.netProfit),
+                    colors,
+                    valueColor = if (state.netProfit >= 0) Color(0xFF4CAF50) else BarksRed
+                )
+                StatRow("Margen", "%.1f%%".format(state.marginPercent), colors)
             }
         }
     }
 }
 
 @Composable
-private fun ProductsSection(state: me.busta.barksaccountant.feature.stats.StatsState) {
-    SectionCard(title = "Productos más vendidos") {
-        if (state.topProducts.isEmpty()) {
-            EmptyMessage()
+private fun CountersSection(
+    state: me.busta.barksaccountant.feature.stats.StatsState,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    BarksCard(title = "Indicadores", colors = colors) {
+        if (state.salesCount == 0) {
+            EmptyMessage(colors)
         } else {
-            state.topProducts.forEach { product ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(product.name, style = MaterialTheme.typography.bodyMedium)
-                        Text(
-                            "${product.unitsSold} uds",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Text(
-                        formatCurrency(product.revenue),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                StatRow("Cantidad de ventas", "${state.salesCount}", colors)
+                StatRow("Ticket promedio", formatCurrency(state.averageTicket), colors)
+                StatRow("Pendiente de pago", formatCurrency(state.unpaidTotal), colors)
+                StatRow("Sin entregar", "${state.undeliveredCount}", colors)
+            }
+        }
+    }
+}
+
+@Composable
+private fun MonthlySection(
+    state: me.busta.barksaccountant.feature.stats.StatsState,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    BarksCard(title = "Desglose mensual", colors = colors) {
+        if (state.monthlyBreakdown.isEmpty()) {
+            EmptyMessage(colors)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                state.monthlyBreakdown.forEach { item ->
+                    StatRow(monthNames[item.month - 1], formatCurrency(item.total), colors)
                 }
             }
         }
@@ -256,29 +303,89 @@ private fun ProductsSection(state: me.busta.barksaccountant.feature.stats.StatsS
 }
 
 @Composable
-private fun ClientsSection(state: me.busta.barksaccountant.feature.stats.StatsState) {
-    SectionCard(title = "Principales clientes") {
-        if (state.topClients.isEmpty()) {
-            EmptyMessage()
+private fun ProductsSection(
+    state: me.busta.barksaccountant.feature.stats.StatsState,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    BarksCard(title = "Productos más vendidos", colors = colors) {
+        if (state.topProducts.isEmpty()) {
+            EmptyMessage(colors)
         } else {
-            state.topClients.forEach { client ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(client.name, style = MaterialTheme.typography.bodyMedium)
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                state.topProducts.forEach { product ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = product.name,
+                                style = omnesStyle(17, FontWeight.SemiBold),
+                                color = colors.primaryText,
+                                maxLines = 2
+                            )
+                            Text(
+                                text = "${product.unitsSold} uds",
+                                style = omnesStyle(12),
+                                color = colors.secondaryText
+                            )
+                        }
+                        Spacer(Modifier.padding(horizontal = 6.dp))
                         Text(
-                            "${client.orderCount} pedido${if (client.orderCount == 1) "" else "s"}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            text = formatCurrency(product.revenue),
+                            style = omnesStyle(17, FontWeight.SemiBold),
+                            color = colors.primaryText
                         )
                     }
-                    Text(
-                        formatCurrency(client.totalAmount),
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Medium
-                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClientsSection(
+    state: me.busta.barksaccountant.feature.stats.StatsState,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors
+) {
+    BarksCard(title = "Principales clientes", colors = colors) {
+        if (state.topClients.isEmpty()) {
+            EmptyMessage(colors)
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                state.topClients.forEach { client ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(2.dp)
+                        ) {
+                            Text(
+                                text = client.name,
+                                style = omnesStyle(17, FontWeight.SemiBold),
+                                color = colors.primaryText,
+                                maxLines = 2
+                            )
+                            Text(
+                                text = "${client.orderCount} pedido${if (client.orderCount == 1) "" else "s"}",
+                                style = omnesStyle(12),
+                                color = colors.secondaryText
+                            )
+                        }
+                        Spacer(Modifier.padding(horizontal = 6.dp))
+                        Text(
+                            text = formatCurrency(client.totalAmount),
+                            style = omnesStyle(17, FontWeight.SemiBold),
+                            color = colors.primaryText
+                        )
+                    }
                 }
             }
         }
@@ -288,47 +395,41 @@ private fun ClientsSection(state: me.busta.barksaccountant.feature.stats.StatsSt
 // MARK: - Reusable Components
 
 @Composable
-private fun SectionCard(title: String, content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(Modifier.height(12.dp))
-            content()
-        }
-    }
-}
-
-@Composable
 private fun StatRow(
     label: String,
     value: String,
-    valueColor: Color = MaterialTheme.colorScheme.onSurface
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors,
+    valueColor: Color = colors.primaryText
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        Text(value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = valueColor)
+        Text(
+            text = label,
+            style = omnesStyle(15),
+            color = colors.secondaryText
+        )
+        Spacer(Modifier.padding(horizontal = 6.dp))
+        Text(
+            text = value,
+            style = omnesStyle(15, FontWeight.SemiBold),
+            color = valueColor
+        )
     }
 }
 
 @Composable
-private fun EmptyMessage() {
+private fun EmptyMessage(colors: me.busta.barksaccountant.android.ui.theme.BarksColors) {
     Text(
-        "Sin datos para mostrar",
-        style = MaterialTheme.typography.bodyMedium,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+        text = "Sin datos para mostrar",
+        style = omnesStyle(15),
+        color = colors.secondaryText,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        textAlign = TextAlign.Center
     )
 }
 
-private fun formatCurrency(value: Double): String = "\u20ac%.2f".format(value)
+private fun formatCurrency(value: Double): String = "€%.2f".format(value)

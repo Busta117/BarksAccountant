@@ -3,12 +3,18 @@ package me.busta.barksaccountant.feature.sales.detail
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import me.busta.barksaccountant.data.repository.BusinessInfoRepository
+import me.busta.barksaccountant.data.repository.ClientRepository
 import me.busta.barksaccountant.data.repository.SaleRepository
+import me.busta.barksaccountant.model.BusinessInfo
 import me.busta.barksaccountant.store.Next
 import me.busta.barksaccountant.store.Store
+import me.busta.barksaccountant.util.InvoiceGenerator
 
 class SaleDetailStore(
-    private val saleRepository: SaleRepository
+    private val saleRepository: SaleRepository,
+    private val clientRepository: ClientRepository,
+    private val businessInfoRepository: BusinessInfoRepository
 ) : Store<SaleDetailState, SaleDetailMessage, SaleDetailEffect>(SaleDetailState()) {
 
     override fun reduce(state: SaleDetailState, message: SaleDetailMessage): Next<SaleDetailState, SaleDetailEffect> {
@@ -46,8 +52,34 @@ class SaleDetailStore(
             is SaleDetailMessage.DismissConfirm -> Next.just(
                 state.copy(showPayConfirm = false, showDeliverConfirm = false)
             )
+            is SaleDetailMessage.ExportTapped -> {
+                val sale = state.sale ?: return Next.just(state)
+                Next.withEffects(
+                    state.copy(isGeneratingInvoice = true),
+                    SaleDetailEffect.GenerateInvoice(sale.id)
+                )
+            }
+            is SaleDetailMessage.InvoiceGenerated -> Next.just(
+                state.copy(invoiceHtml = message.html, isGeneratingInvoice = false)
+            )
+            is SaleDetailMessage.InvoiceDismissed -> Next.just(
+                state.copy(invoiceHtml = null)
+            )
+            is SaleDetailMessage.ShareSummaryTapped -> {
+                val sale = state.sale ?: return Next.just(state)
+                Next.withEffects(
+                    state.copy(isGeneratingSummary = true),
+                    SaleDetailEffect.GenerateOrderSummary(sale.id)
+                )
+            }
+            is SaleDetailMessage.SummaryGenerated -> Next.just(
+                state.copy(summaryHtml = message.html, isGeneratingSummary = false)
+            )
+            is SaleDetailMessage.SummaryDismissed -> Next.just(
+                state.copy(summaryHtml = null)
+            )
             is SaleDetailMessage.ErrorOccurred -> Next.just(
-                state.copy(isLoading = false, error = message.error)
+                state.copy(isLoading = false, isGeneratingInvoice = false, isGeneratingSummary = false, error = message.error)
             )
         }
     }
@@ -87,6 +119,52 @@ class SaleDetailStore(
                     dispatch(SaleDetailMessage.SaleUpdated(updated))
                 } catch (e: Exception) {
                     dispatch(SaleDetailMessage.ErrorOccurred(e.message ?: "Error desconocido"))
+                }
+            }
+            is SaleDetailEffect.GenerateInvoice -> {
+                try {
+                    val sale = saleRepository.getSale(effect.saleId)
+                        ?: throw Exception("Venta no encontrada")
+                    val clients = clientRepository.getClients()
+                    val client = clients.find { it.name == sale.clientName }
+                    val businessInfo = businessInfoRepository.getBusinessInfo()
+                        ?: BusinessInfo(
+                            businessName = "Sin configurar",
+                            nif = null,
+                            address = null,
+                            phone = null,
+                            email = null,
+                            bankName = null,
+                            iban = null,
+                            bankHolder = null
+                        )
+                    val html = InvoiceGenerator.generateHtml(sale, client, businessInfo)
+                    dispatch(SaleDetailMessage.InvoiceGenerated(html))
+                } catch (e: Exception) {
+                    dispatch(SaleDetailMessage.ErrorOccurred(e.message ?: "Error al generar factura"))
+                }
+            }
+            is SaleDetailEffect.GenerateOrderSummary -> {
+                try {
+                    val sale = saleRepository.getSale(effect.saleId)
+                        ?: throw Exception("Venta no encontrada")
+                    val clients = clientRepository.getClients()
+                    val client = clients.find { it.name == sale.clientName }
+                    val businessInfo = businessInfoRepository.getBusinessInfo()
+                        ?: BusinessInfo(
+                            businessName = "Sin configurar",
+                            nif = null,
+                            address = null,
+                            phone = null,
+                            email = null,
+                            bankName = null,
+                            iban = null,
+                            bankHolder = null
+                        )
+                    val html = InvoiceGenerator.generateOrderSummaryHtml(sale, client, businessInfo)
+                    dispatch(SaleDetailMessage.SummaryGenerated(html))
+                } catch (e: Exception) {
+                    dispatch(SaleDetailMessage.ErrorOccurred(e.message ?: "Error al generar resumen"))
                 }
             }
         }

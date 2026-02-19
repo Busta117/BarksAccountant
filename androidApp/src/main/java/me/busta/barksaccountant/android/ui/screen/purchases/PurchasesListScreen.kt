@@ -1,29 +1,32 @@
 package me.busta.barksaccountant.android.ui.screen.purchases
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,8 +35,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import me.busta.barksaccountant.android.ui.theme.BarksBlack
+import me.busta.barksaccountant.android.ui.theme.BarksFab
+import me.busta.barksaccountant.android.ui.theme.BarksLightBlue
+import me.busta.barksaccountant.android.ui.theme.BarksRed
+import me.busta.barksaccountant.android.ui.theme.BarksWhite
+import me.busta.barksaccountant.android.ui.theme.barksColors
+import me.busta.barksaccountant.android.ui.theme.omnesStyle
+import me.busta.barksaccountant.android.ui.theme.vagRundschriftStyle
 import me.busta.barksaccountant.di.ServiceLocator
 import me.busta.barksaccountant.feature.purchases.list.PurchasesListMessage
 import me.busta.barksaccountant.feature.purchases.list.PurchasesListStore
@@ -48,6 +62,7 @@ fun PurchasesListScreen(
 ) {
     val store = remember { PurchasesListStore(purchaseRepository = serviceLocator.purchaseRepository) }
     val state by store.state.collectAsState()
+    val colors = barksColors()
 
     LaunchedEffect(Unit) { store.dispatch(PurchasesListMessage.Started) }
     DisposableEffect(Unit) { onDispose { store.dispose() } }
@@ -55,54 +70,84 @@ fun PurchasesListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Compras") },
-                actions = {
-                    IconButton(onClick = onNewPurchase) {
-                        Icon(Icons.Default.Add, contentDescription = "Nueva compra")
-                    }
-                }
+                title = { Text("Compras", style = omnesStyle(17, FontWeight.SemiBold)) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colors.screenBackground,
+                    titleContentColor = colors.primaryText
+                )
             )
-        }
+        },
+        floatingActionButton = {
+            BarksFab(onClick = onNewPurchase, colors = colors)
+        },
+        containerColor = colors.screenBackground
     ) { padding ->
         when {
             state.isLoading && state.purchases.isEmpty() -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(padding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
                     contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator() }
+                ) {
+                    CircularProgressIndicator(color = BarksRed)
+                }
             }
             state.error != null && state.purchases.isEmpty() -> {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(state.error ?: "", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        state.error ?: "",
+                        style = omnesStyle(17),
+                        color = colors.primaryText.copy(alpha = 0.7f)
+                    )
                     Spacer(Modifier.height(12.dp))
-                    TextButton(onClick = { store.dispatch(PurchasesListMessage.Started) }) {
-                        Text("Reintentar")
+                    Button(
+                        onClick = { store.dispatch(PurchasesListMessage.Started) }
+                    ) {
+                        Text("Retry")
                     }
                 }
             }
             state.purchases.isEmpty() -> {
                 Box(
-                    modifier = Modifier.fillMaxSize().padding(padding),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "No hay compras",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        "No purchases yet",
+                        style = vagRundschriftStyle(20),
+                        color = colors.primaryText.copy(alpha = 0.7f)
                     )
                 }
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(padding)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 8.dp,
+                        bottom = 88.dp // Extra space for FAB
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     items(state.purchases, key = { it.id }) { purchase ->
-                        PurchaseRow(purchase = purchase, onClick = { onPurchaseClick(purchase.id) })
-                        HorizontalDivider()
+                        PurchaseCardRow(
+                            purchase = purchase,
+                            colors = colors,
+                            onClick = { onPurchaseClick(purchase.id) }
+                        )
                     }
                 }
             }
@@ -111,37 +156,94 @@ fun PurchasesListScreen(
 }
 
 @Composable
-private fun PurchaseRow(purchase: Purchase, onClick: () -> Unit) {
-    Column(
+private fun PurchaseCardRow(
+    purchase: Purchase,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors,
+    onClick: () -> Unit
+) {
+    val shadowColor = if (colors.isDark) {
+        Color.Black.copy(alpha = 0.22f)
+    } else {
+        Color.Black.copy(alpha = 0.08f)
+    }
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
+            .shadow(
+                elevation = 16.dp,
+                shape = RoundedCornerShape(18.dp),
+                ambientColor = shadowColor,
+                spotColor = shadowColor
+            )
+            .clip(RoundedCornerShape(18.dp))
+            .background(colors.cardBackground)
+            .then(
+                if (colors.isDark) {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = Color.White.copy(alpha = 0.06f),
+                        shape = RoundedCornerShape(18.dp)
+                    )
+                } else {
+                    Modifier
+                }
+            )
             .clickable(onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
     ) {
-        Text(text = purchase.title, style = MaterialTheme.typography.titleMedium)
-        purchase.description?.let { desc ->
-            if (desc.isNotEmpty()) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            // Title
+            Text(
+                text = purchase.title,
+                style = omnesStyle(17, FontWeight.SemiBold),
+                color = colors.primaryText,
+                maxLines = 1
+            )
+
+            // Description (if present)
+            purchase.description?.let { desc ->
+                if (desc.isNotEmpty()) {
+                    Text(
+                        text = desc,
+                        style = omnesStyle(15),
+                        color = colors.secondaryText
+                    )
+                }
+            }
+
+            // Calendar icon + date
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.CalendarToday,
+                    contentDescription = null,
+                    tint = BarksLightBlue,
+                    modifier = Modifier.size(14.dp)
+                )
                 Text(
-                    text = desc,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = purchase.date,
+                    style = omnesStyle(15),
+                    color = colors.secondaryText,
                     maxLines = 1
                 )
             }
         }
-        Spacer(Modifier.height(4.dp))
-        Row {
-            Text(
-                text = purchase.date,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(Modifier.weight(1f))
-            Text(
-                text = "\u20ac%.2f".format(purchase.value),
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+
+        Spacer(Modifier.size(12.dp))
+
+        // Price (right-aligned)
+        Text(
+            text = String.format("€%.2f", purchase.value),
+            style = omnesStyle(17, FontWeight.SemiBold),
+            color = colors.primaryText
+        )
     }
 }

@@ -9,6 +9,8 @@ sealed interface ClientFormMessage {
     data class ResponsibleChanged(val text: String) : ClientFormMessage
     data class NifChanged(val text: String) : ClientFormMessage
     data class AddressChanged(val text: String) : ClientFormMessage
+    data class IvaPctChanged(val text: String) : ClientFormMessage
+    data class RecargoPctChanged(val text: String) : ClientFormMessage
     data object SaveTapped : ClientFormMessage
     data object SaveSuccess : ClientFormMessage
     data object DeleteTapped : ClientFormMessage

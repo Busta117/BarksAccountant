@@ -4,6 +4,7 @@ import Shared
 enum SettingsDestination: Hashable {
     case products
     case clients
+    case businessInfo
 }
 
 enum ProductDestination: Hashable {
@@ -72,6 +73,8 @@ struct SettingsView: View {
                 ProductsListView(serviceLocator: serviceLocator)
             case .clients:
                 ClientsListView(serviceLocator: serviceLocator)
+            case .businessInfo:
+                BusinessInfoView(serviceLocator: serviceLocator)
             }
         }
         .alert("Cerrar sesión", isPresented: $showLogoutConfirm) {
@@ -129,6 +132,18 @@ struct SettingsView: View {
                         iconTint: .barksPink,
                         title: "Clientes",
                         subtitle: "Gestiona tus compradores"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Divider().opacity(colorScheme == .dark ? 0.25 : 0.18)
+
+                NavigationLink(value: SettingsDestination.businessInfo) {
+                    settingsRow(
+                        icon: "building.2.fill",
+                        iconTint: .barksRed,
+                        title: "Datos del negocio",
+                        subtitle: "Información para facturas"
                     )
                 }
                 .buttonStyle(.plain)

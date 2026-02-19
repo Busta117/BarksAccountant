@@ -8,6 +8,8 @@ final class ClientFormStoreWrapper {
     private(set) var responsible: String = ""
     private(set) var nif: String = ""
     private(set) var address: String = ""
+    private(set) var ivaPct: String = ""
+    private(set) var recargoPct: String = ""
     private(set) var isSaving: Bool = false
     private(set) var savedSuccessfully: Bool = false
     private(set) var showDeleteConfirm: Bool = false
@@ -32,6 +34,8 @@ final class ClientFormStoreWrapper {
                 self.responsible = state.responsible
                 self.nif = state.nif
                 self.address = state.address
+                self.ivaPct = state.ivaPct
+                self.recargoPct = state.recargoPct
                 self.isSaving = state.isSaving
                 self.savedSuccessfully = state.savedSuccessfully
                 self.showDeleteConfirm = state.showDeleteConfirm
@@ -47,6 +51,8 @@ final class ClientFormStoreWrapper {
     func responsibleChanged(_ text: String) { store.dispatch(message: ClientFormMessageResponsibleChanged(text: text)) }
     func nifChanged(_ text: String) { store.dispatch(message: ClientFormMessageNifChanged(text: text)) }
     func addressChanged(_ text: String) { store.dispatch(message: ClientFormMessageAddressChanged(text: text)) }
+    func ivaPctChanged(_ text: String) { store.dispatch(message: ClientFormMessageIvaPctChanged(text: text)) }
+    func recargoPctChanged(_ text: String) { store.dispatch(message: ClientFormMessageRecargoPctChanged(text: text)) }
     func saveTapped() { store.dispatch(message: ClientFormMessageSaveTapped.shared) }
     func deleteTapped() { store.dispatch(message: ClientFormMessageDeleteTapped.shared) }
     func confirmDelete() { store.dispatch(message: ClientFormMessageConfirmDelete.shared) }

@@ -25,7 +25,9 @@ class ClientFormStore(
                         name = client.name,
                         responsible = client.responsible ?: "",
                         nif = client.nif ?: "",
-                        address = client.address ?: ""
+                        address = client.address ?: "",
+                        ivaPct = client.ivaPct?.toString() ?: "",
+                        recargoPct = client.recargoPct?.toString() ?: ""
                     ))
                 } else {
                     Next.just(state)
@@ -35,6 +37,8 @@ class ClientFormStore(
             is ClientFormMessage.ResponsibleChanged -> Next.just(state.copy(responsible = message.text))
             is ClientFormMessage.NifChanged -> Next.just(state.copy(nif = message.text))
             is ClientFormMessage.AddressChanged -> Next.just(state.copy(address = message.text))
+            is ClientFormMessage.IvaPctChanged -> Next.just(state.copy(ivaPct = message.text))
+            is ClientFormMessage.RecargoPctChanged -> Next.just(state.copy(recargoPct = message.text))
             is ClientFormMessage.SaveTapped -> {
                 if (!state.canSave) return Next.just(state)
                 val client = Client(
@@ -42,7 +46,9 @@ class ClientFormStore(
                     name = state.name,
                     responsible = state.responsible.ifBlank { null },
                     nif = state.nif.ifBlank { null },
-                    address = state.address.ifBlank { null }
+                    address = state.address.ifBlank { null },
+                    ivaPct = state.ivaPct.toDoubleOrNull(),
+                    recargoPct = state.recargoPct.toDoubleOrNull()
                 )
                 if (state.isEditing) {
                     Next.withEffects(state.copy(isSaving = true, error = null), ClientFormEffect.UpdateClient(client))

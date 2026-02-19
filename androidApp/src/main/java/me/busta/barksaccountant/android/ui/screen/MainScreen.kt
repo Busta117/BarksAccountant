@@ -9,15 +9,20 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import me.busta.barksaccountant.android.ui.theme.BarksLightBlue
+import me.busta.barksaccountant.android.ui.theme.barksColors
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -26,10 +31,12 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import me.busta.barksaccountant.android.ui.screen.purchases.PurchaseFormScreen
 import me.busta.barksaccountant.android.ui.screen.purchases.PurchasesListScreen
+import me.busta.barksaccountant.android.ui.screen.sales.InvoiceScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleDetailScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SaleFormScreen
 import me.busta.barksaccountant.android.ui.screen.sales.SalesListScreen
 import me.busta.barksaccountant.android.ui.screen.stats.StatsScreen
+import me.busta.barksaccountant.android.ui.screen.settings.BusinessInfoScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientFormScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientsListScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ProductFormScreen
@@ -58,15 +65,28 @@ fun MainScreen(
 ) {
     val navController = rememberNavController()
     var selectedTab by rememberSaveable { mutableIntStateOf(0) }
+    var pendingInvoiceHtml by remember { mutableStateOf<String?>(null) }
+    var pendingSummaryHtml by remember { mutableStateOf<String?>(null) }
+
+    val colors = barksColors()
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
+            NavigationBar(
+                containerColor = colors.screenBackground
+            ) {
                 tabs.forEachIndexed { index, tab ->
                     NavigationBarItem(
                         icon = { Icon(tab.icon, contentDescription = tab.label) },
                         label = { Text(tab.label) },
                         selected = selectedTab == index,
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = BarksLightBlue,
+                            selectedTextColor = BarksLightBlue,
+                            indicatorColor = BarksLightBlue.copy(alpha = 0.15f),
+                            unselectedIconColor = colors.secondaryText,
+                            unselectedTextColor = colors.secondaryText
+                        ),
                         onClick = {
                             selectedTab = index
                             navController.navigate(tab.route) {
@@ -105,7 +125,15 @@ fun MainScreen(
                     serviceLocator = serviceLocator,
                     saleId = saleId,
                     onEditSale = { navController.navigate("sale_form?saleId=$saleId") },
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onInvoiceReady = { html, invoiceSaleId ->
+                        pendingInvoiceHtml = html
+                        navController.navigate("invoice/$invoiceSaleId")
+                    },
+                    onSummaryReady = { html, summarySaleId ->
+                        pendingSummaryHtml = html
+                        navController.navigate("summary/$summarySaleId")
+                    }
                 )
             }
 
@@ -120,6 +148,39 @@ fun MainScreen(
                     personName = personName,
                     onSaved = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                "invoice/{saleId}",
+                arguments = listOf(navArgument("saleId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val invoiceSaleId = backStackEntry.arguments?.getString("saleId") ?: return@composable
+                val html = pendingInvoiceHtml ?: return@composable
+                InvoiceScreen(
+                    invoiceHtml = html,
+                    saleId = invoiceSaleId,
+                    onBack = {
+                        pendingInvoiceHtml = null
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(
+                "summary/{saleId}",
+                arguments = listOf(navArgument("saleId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val summarySaleId = backStackEntry.arguments?.getString("saleId") ?: return@composable
+                val html = pendingSummaryHtml ?: return@composable
+                InvoiceScreen(
+                    invoiceHtml = html,
+                    saleId = summarySaleId,
+                    documentName = "Resumen",
+                    onBack = {
+                        pendingSummaryHtml = null
+                        navController.popBackStack()
+                    }
                 )
             }
 
@@ -158,7 +219,8 @@ fun MainScreen(
                     personName = personName,
                     onLogout = onLogout,
                     onProductsClick = { navController.navigate("products_list") },
-                    onClientsClick = { navController.navigate("clients_list") }
+                    onClientsClick = { navController.navigate("clients_list") },
+                    onBusinessInfoClick = { navController.navigate("business_info") }
                 )
             }
 
@@ -201,6 +263,14 @@ fun MainScreen(
                 ClientFormScreen(
                     serviceLocator = serviceLocator,
                     clientId = clientId,
+                    onSaved = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("business_info") {
+                BusinessInfoScreen(
+                    serviceLocator = serviceLocator,
                     onSaved = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
                 )
