@@ -1,7 +1,9 @@
 package me.busta.barksaccountant.data.repository
 
 import me.busta.barksaccountant.data.FirestoreService
+import me.busta.barksaccountant.model.IngredientUnit
 import me.busta.barksaccountant.model.Product
+import me.busta.barksaccountant.model.ProductIngredient
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -37,7 +39,15 @@ class FirestoreProductRepository(
     private fun productToMap(product: Product): Map<String, Any> {
         return mapOf(
             "name" to product.name,
-            "unitPrice" to product.unitPrice
+            "unitPrice" to product.unitPrice,
+            "ingredients" to product.ingredients.map { ing ->
+                mapOf<String, Any>(
+                    "ingredientId" to ing.ingredientId,
+                    "ingredientName" to ing.ingredientName,
+                    "unit" to ing.unit.name,
+                    "quantity" to ing.quantity
+                )
+            }
         )
     }
 
@@ -46,10 +56,19 @@ class FirestoreProductRepository(
     }
 
     private fun mapToProduct(data: Map<String, Any>, overrideId: String? = null): Product {
+        val ingredientsData = (data["ingredients"] as? List<*>)?.mapNotNull { it as? Map<*, *> } ?: emptyList()
         return Product(
             id = overrideId ?: (data["id"] as? String ?: ""),
             name = data["name"] as? String ?: "",
-            unitPrice = (data["unitPrice"] as? Number)?.toDouble() ?: 0.0
+            unitPrice = (data["unitPrice"] as? Number)?.toDouble() ?: 0.0,
+            ingredients = ingredientsData.map { m ->
+                ProductIngredient(
+                    ingredientId = m["ingredientId"] as? String ?: "",
+                    ingredientName = m["ingredientName"] as? String ?: "",
+                    unit = IngredientUnit.fromName(m["unit"] as? String),
+                    quantity = (m["quantity"] as? Number)?.toDouble() ?: 0.0
+                )
+            }
         )
     }
 }

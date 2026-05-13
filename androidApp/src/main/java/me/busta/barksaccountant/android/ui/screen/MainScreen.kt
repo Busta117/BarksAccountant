@@ -29,6 +29,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import me.busta.barksaccountant.android.ui.screen.purchases.ProductionCapacityScreen
+import me.busta.barksaccountant.android.ui.screen.purchases.ProductionPlanScreen
 import me.busta.barksaccountant.android.ui.screen.purchases.PurchaseFormScreen
 import me.busta.barksaccountant.android.ui.screen.purchases.PurchasesListScreen
 import me.busta.barksaccountant.android.ui.screen.sales.InvoiceScreen
@@ -39,6 +41,8 @@ import me.busta.barksaccountant.android.ui.screen.stats.StatsScreen
 import me.busta.barksaccountant.android.ui.screen.settings.BusinessInfoScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientFormScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ClientsListScreen
+import me.busta.barksaccountant.android.ui.screen.settings.IngredientFormScreen
+import me.busta.barksaccountant.android.ui.screen.settings.IngredientsListScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ProductFormScreen
 import me.busta.barksaccountant.android.ui.screen.settings.ProductsListScreen
 import me.busta.barksaccountant.android.ui.screen.settings.SettingsScreen
@@ -189,7 +193,23 @@ fun MainScreen(
                 PurchasesListScreen(
                     serviceLocator = serviceLocator,
                     onPurchaseClick = { purchaseId -> navController.navigate("purchase_form?purchaseId=$purchaseId") },
-                    onNewPurchase = { navController.navigate("purchase_form") }
+                    onNewPurchase = { navController.navigate("purchase_form") },
+                    onOpenProductionPlan = { navController.navigate("production_plan") },
+                    onOpenProductionCapacity = { navController.navigate("production_capacity") }
+                )
+            }
+
+            composable("production_plan") {
+                ProductionPlanScreen(
+                    serviceLocator = serviceLocator,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("production_capacity") {
+                ProductionCapacityScreen(
+                    serviceLocator = serviceLocator,
+                    onBack = { navController.popBackStack() }
                 )
             }
 
@@ -219,6 +239,7 @@ fun MainScreen(
                     personName = personName,
                     onLogout = onLogout,
                     onProductsClick = { navController.navigate("products_list") },
+                    onIngredientsClick = { navController.navigate("ingredients_list") },
                     onClientsClick = { navController.navigate("clients_list") },
                     onBusinessInfoClick = { navController.navigate("business_info") }
                 )
@@ -241,6 +262,28 @@ fun MainScreen(
                 ProductFormScreen(
                     serviceLocator = serviceLocator,
                     productId = productId,
+                    onSaved = { navController.popBackStack() },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+
+            composable("ingredients_list") {
+                IngredientsListScreen(
+                    serviceLocator = serviceLocator,
+                    onBack = { navController.popBackStack() },
+                    onIngredientClicked = { id -> navController.navigate("ingredient_form?ingredientId=$id") },
+                    onAddIngredient = { navController.navigate("ingredient_form") }
+                )
+            }
+
+            composable(
+                "ingredient_form?ingredientId={ingredientId}",
+                arguments = listOf(navArgument("ingredientId") { type = NavType.StringType; nullable = true; defaultValue = null })
+            ) { backStackEntry ->
+                val ingredientId = backStackEntry.arguments?.getString("ingredientId")
+                IngredientFormScreen(
+                    serviceLocator = serviceLocator,
+                    ingredientId = ingredientId,
                     onSaved = { navController.popBackStack() },
                     onBack = { navController.popBackStack() }
                 )

@@ -3,6 +3,7 @@ import Shared
 
 enum SettingsDestination: Hashable {
     case products
+    case ingredients
     case clients
     case businessInfo
 }
@@ -71,6 +72,8 @@ struct SettingsView: View {
             switch destination {
             case .products:
                 ProductsListView(serviceLocator: serviceLocator)
+            case .ingredients:
+                IngredientsListView(serviceLocator: serviceLocator)
             case .clients:
                 ClientsListView(serviceLocator: serviceLocator)
             case .businessInfo:
@@ -120,6 +123,18 @@ struct SettingsView: View {
                         iconTint: .barksLightBlue,
                         title: "Productos",
                         subtitle: "Crea y edita tu catálogo"
+                    )
+                }
+                .buttonStyle(.plain)
+
+                Divider().opacity(colorScheme == .dark ? 0.25 : 0.18)
+
+                NavigationLink(value: SettingsDestination.ingredients) {
+                    settingsRow(
+                        icon: "fork.knife",
+                        iconTint: .barksLightBlue,
+                        title: "Ingredientes",
+                        subtitle: "Recetas de tus helados"
                     )
                 }
                 .buttonStyle(.plain)

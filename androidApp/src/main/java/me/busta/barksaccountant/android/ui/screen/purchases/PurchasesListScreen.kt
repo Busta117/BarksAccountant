@@ -19,6 +19,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,8 +44,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import me.busta.barksaccountant.android.ui.theme.BarksBlack
+import me.busta.barksaccountant.android.ui.theme.BarksCard
 import me.busta.barksaccountant.android.ui.theme.BarksFab
 import me.busta.barksaccountant.android.ui.theme.BarksLightBlue
+import me.busta.barksaccountant.android.ui.theme.BarksPink
 import me.busta.barksaccountant.android.ui.theme.BarksRed
 import me.busta.barksaccountant.android.ui.theme.BarksWhite
 import me.busta.barksaccountant.android.ui.theme.barksColors
@@ -58,7 +63,9 @@ import me.busta.barksaccountant.model.Purchase
 fun PurchasesListScreen(
     serviceLocator: ServiceLocator,
     onPurchaseClick: (String) -> Unit,
-    onNewPurchase: () -> Unit
+    onNewPurchase: () -> Unit,
+    onOpenProductionPlan: () -> Unit,
+    onOpenProductionCapacity: () -> Unit
 ) {
     val store = remember { PurchasesListStore(purchaseRepository = serviceLocator.purchaseRepository) }
     val state by store.state.collectAsState()
@@ -116,17 +123,41 @@ fun PurchasesListScreen(
                 }
             }
             state.purchases.isEmpty() -> {
-                Box(
+                Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
+                        .padding(padding)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        "No purchases yet",
-                        style = vagRundschriftStyle(20),
-                        color = colors.primaryText.copy(alpha = 0.7f)
+                    ProductionActionCard(
+                        title = "Planificar producción",
+                        subtitle = "Calcula materia prima a comprar",
+                        icon = Icons.Default.Restaurant,
+                        iconTint = BarksLightBlue,
+                        colors = colors,
+                        onClick = onOpenProductionPlan
                     )
+                    ProductionActionCard(
+                        title = "¿Qué puedo producir?",
+                        subtitle = "A partir de un ingrediente disponible",
+                        icon = Icons.Default.Calculate,
+                        iconTint = BarksPink,
+                        colors = colors,
+                        onClick = onOpenProductionCapacity
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            "No purchases yet",
+                            style = vagRundschriftStyle(20),
+                            color = colors.primaryText.copy(alpha = 0.7f)
+                        )
+                    }
                 }
             }
             else -> {
@@ -142,6 +173,26 @@ fun PurchasesListScreen(
                     ),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    item {
+                        ProductionActionCard(
+                            title = "Planificar producción",
+                            subtitle = "Calcula materia prima a comprar",
+                            icon = Icons.Default.Restaurant,
+                            iconTint = BarksLightBlue,
+                            colors = colors,
+                            onClick = onOpenProductionPlan
+                        )
+                    }
+                    item {
+                        ProductionActionCard(
+                            title = "¿Qué puedo producir?",
+                            subtitle = "A partir de un ingrediente disponible",
+                            icon = Icons.Default.Calculate,
+                            iconTint = BarksPink,
+                            colors = colors,
+                            onClick = onOpenProductionCapacity
+                        )
+                    }
                     items(state.purchases, key = { it.id }) { purchase ->
                         PurchaseCardRow(
                             purchase = purchase,
@@ -245,5 +296,53 @@ private fun PurchaseCardRow(
             style = omnesStyle(17, FontWeight.SemiBold),
             color = colors.primaryText
         )
+    }
+}
+
+@Composable
+private fun ProductionActionCard(
+    title: String,
+    subtitle: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    iconTint: androidx.compose.ui.graphics.Color,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors,
+    onClick: () -> Unit
+) {
+    BarksCard(colors = colors) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(onClick = onClick),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = iconTint,
+                modifier = Modifier.size(22.dp)
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = title,
+                    style = omnesStyle(16, FontWeight.SemiBold),
+                    color = colors.primaryText
+                )
+                Text(
+                    text = subtitle,
+                    style = omnesStyle(13),
+                    color = colors.secondaryText
+                )
+            }
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = null,
+                tint = colors.secondaryText,
+                modifier = Modifier.size(18.dp)
+            )
+        }
     }
 }

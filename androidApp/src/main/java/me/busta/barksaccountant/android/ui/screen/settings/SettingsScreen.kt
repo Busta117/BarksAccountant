@@ -22,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Kitchen
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Sell
 import androidx.compose.material3.AlertDialog
@@ -65,6 +66,7 @@ fun SettingsScreen(
     personName: String,
     onLogout: () -> Unit,
     onProductsClick: () -> Unit,
+    onIngredientsClick: () -> Unit,
     onClientsClick: () -> Unit,
     onBusinessInfoClick: () -> Unit
 ) {
@@ -153,6 +155,19 @@ fun SettingsScreen(
                         subtitle = "Crea y edita tu catálogo",
                         colors = colors,
                         onClick = onProductsClick
+                    )
+
+                    HorizontalDivider(
+                        color = colors.primaryText.copy(alpha = if (isDark) 0.25f else 0.18f)
+                    )
+
+                    SettingsRow(
+                        icon = Icons.Default.Kitchen,
+                        iconTint = BarksLightBlue,
+                        title = "Ingredientes",
+                        subtitle = "Recetas de tus helados",
+                        colors = colors,
+                        onClick = onIngredientsClick
                     )
 
                     HorizontalDivider(

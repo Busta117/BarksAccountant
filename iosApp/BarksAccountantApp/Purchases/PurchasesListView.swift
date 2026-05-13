@@ -44,8 +44,62 @@ struct PurchasesListView: View {
     }
 
     @ViewBuilder
+    private var productionLinksSection: some View {
+        VStack(spacing: 10) {
+            NavigationLink(value: "production_plan") {
+                HStack(spacing: 12) {
+                    Image(systemName: "fork.knife.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.barksLightBlue)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Planificar producción")
+                            .font(.omnes(16, weight: .semiBold))
+                            .foregroundStyle(primaryText)
+                        Text("Calcula materia prima a comprar")
+                            .font(.omnes(13))
+                            .foregroundStyle(primaryText.opacity(0.6))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(primaryText.opacity(0.5))
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 14).fill(cardBackground))
+            }
+            .buttonStyle(.plain)
+
+            NavigationLink(value: "production_capacity") {
+                HStack(spacing: 12) {
+                    Image(systemName: "scalemass.fill")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Color.barksPink)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("¿Qué puedo producir?")
+                            .font(.omnes(16, weight: .semiBold))
+                            .foregroundStyle(primaryText)
+                        Text("Calcula capacidad según stock")
+                            .font(.omnes(13))
+                            .foregroundStyle(primaryText.opacity(0.6))
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .foregroundStyle(primaryText.opacity(0.5))
+                }
+                .padding(14)
+                .background(RoundedRectangle(cornerRadius: 14).fill(cardBackground))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+    }
+
+    @ViewBuilder
     private var content: some View {
-        Group {
+        VStack(spacing: 0) {
+            productionLinksSection
+
+            Group {
             if store.isLoading && store.purchases.isEmpty {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -99,17 +153,23 @@ struct PurchasesListView: View {
                 .listStyle(.plain)
                 .scrollContentBackground(.hidden)
             }
+            }
         }
         // Navigation handling for editing or creating a purchase
         .navigationDestination(for: String.self) { value in
-            if value == "new_purchase" {
+            switch value {
+            case "new_purchase":
                 PurchaseFormView(
                     serviceLocator: serviceLocator,
                     purchaseId: nil,
                     personName: personName,
                     onSaved: { store.reload() }
                 )
-            } else {
+            case "production_plan":
+                ProductionPlanView(serviceLocator: serviceLocator)
+            case "production_capacity":
+                ProductionCapacityView(serviceLocator: serviceLocator)
+            default:
                 PurchaseFormView(
                     serviceLocator: serviceLocator,
                     purchaseId: value,

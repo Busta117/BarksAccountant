@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -52,6 +53,7 @@ import me.busta.barksaccountant.android.ui.theme.omnesStyle
 import me.busta.barksaccountant.di.ServiceLocator
 import me.busta.barksaccountant.feature.settings.products.form.ProductFormMessage
 import me.busta.barksaccountant.feature.settings.products.form.ProductFormStore
+import me.busta.barksaccountant.model.ProductIngredient
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +63,12 @@ fun ProductFormScreen(
     onSaved: () -> Unit,
     onBack: () -> Unit
 ) {
-    val store = remember { ProductFormStore(productRepository = serviceLocator.productRepository) }
+    val store = remember {
+        ProductFormStore(
+            productRepository = serviceLocator.productRepository,
+            ingredientRepository = serviceLocator.ingredientRepository
+        )
+    }
     val state by store.state.collectAsState()
     val colors = barksColors()
 
@@ -101,6 +108,14 @@ fun ProductFormScreen(
                     Text("Cancelar")
                 }
             }
+        )
+    }
+
+    if (state.showIngredientPicker) {
+        IngredientPickerDialog(
+            ingredients = state.availableIngredients.filter { a -> state.ingredients.none { it.ingredientId == a.id } },
+            onSelected = { ing -> store.dispatch(ProductFormMessage.IngredientPicked(ing)) },
+            onDismiss = { store.dispatch(ProductFormMessage.DismissIngredientPicker) }
         )
     }
 
@@ -144,6 +159,19 @@ fun ProductFormScreen(
                 colors = colors,
                 onNameChange = { store.dispatch(ProductFormMessage.NameChanged(it)) },
                 onPriceChange = { store.dispatch(ProductFormMessage.PriceChanged(it)) }
+            )
+
+            // Ingredients Card
+            IngredientsCard(
+                ingredients = state.ingredients,
+                quantityTexts = state.ingredientQuantityTexts,
+                colors = colors,
+                catalogEmpty = state.availableIngredients.isEmpty(),
+                onAdd = { store.dispatch(ProductFormMessage.AddIngredientTapped) },
+                onQuantityChange = { index, text ->
+                    store.dispatch(ProductFormMessage.IngredientQuantityChanged(index, text))
+                },
+                onRemove = { index -> store.dispatch(ProductFormMessage.IngredientRemoved(index)) }
             )
 
             // Save Card
@@ -323,6 +351,137 @@ private fun SaveCard(
                     color = BarksRed,
                     modifier = Modifier.fillMaxWidth(),
                     textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+}
+
+// ─── Ingredients Card ────────────────────────────────────────────────────────
+
+@Composable
+private fun IngredientsCard(
+    ingredients: List<ProductIngredient>,
+    quantityTexts: List<String>,
+    colors: me.busta.barksaccountant.android.ui.theme.BarksColors,
+    catalogEmpty: Boolean,
+    onAdd: () -> Unit,
+    onQuantityChange: (Int, String) -> Unit,
+    onRemove: (Int) -> Unit
+) {
+    BarksCard(title = "Ingredientes", colors = colors) {
+        Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            if (ingredients.isEmpty()) {
+                Text(
+                    text = "No hay ingredientes añadidos",
+                    style = omnesStyle(14),
+                    color = colors.secondaryText
+                )
+            } else {
+                ingredients.forEachIndexed { index, ing ->
+                    val qtyText = quantityTexts.getOrNull(index) ?: ""
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = ing.ingredientName,
+                            style = omnesStyle(15, FontWeight.SemiBold),
+                            color = colors.primaryText,
+                            modifier = Modifier.weight(1f),
+                            maxLines = 1
+                        )
+
+                        BasicTextField(
+                            value = qtyText,
+                            onValueChange = { onQuantityChange(index, it) },
+                            textStyle = omnesStyle(15, FontWeight.SemiBold).copy(
+                                color = colors.primaryText
+                            ),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                            singleLine = true,
+                            modifier = Modifier
+                                .width(80.dp)
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(colors.fieldBackground)
+                                .border(
+                                    width = 1.dp,
+                                    color = if (qtyText.toDoubleOrNull()?.let { it > 0.0 } != true)
+                                        BarksRed.copy(alpha = 0.45f)
+                                    else colors.fieldBorder,
+                                    shape = RoundedCornerShape(10.dp)
+                                )
+                                .padding(horizontal = 10.dp),
+                            decorationBox = { innerTextField ->
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterStart
+                                ) {
+                                    if (qtyText.isEmpty()) {
+                                        Text(
+                                            text = "0",
+                                            style = omnesStyle(15, FontWeight.SemiBold),
+                                            color = colors.secondaryText.copy(alpha = 0.5f)
+                                        )
+                                    }
+                                    innerTextField()
+                                }
+                            }
+                        )
+
+                        Box(
+                            modifier = Modifier.width(28.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = ing.unit.symbol,
+                                style = omnesStyle(14, FontWeight.SemiBold),
+                                color = colors.secondaryText
+                            )
+                        }
+
+                        IconButton(
+                            onClick = { onRemove(index) },
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Eliminar",
+                                tint = BarksRed,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
+                }
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(44.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(
+                        width = 1.dp,
+                        color = if (catalogEmpty) colors.secondaryText.copy(alpha = 0.4f) else BarksRed,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    .clickable(enabled = !catalogEmpty, onClick = onAdd),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (catalogEmpty) "No hay ingredientes en el catálogo" else "+ Añadir ingrediente",
+                    style = omnesStyle(14, FontWeight.SemiBold),
+                    color = if (catalogEmpty) colors.secondaryText else BarksRed
+                )
+            }
+
+            if (catalogEmpty) {
+                Text(
+                    text = "Créalos en Settings → Ingredientes",
+                    style = omnesStyle(12),
+                    color = colors.secondaryText
                 )
             }
         }

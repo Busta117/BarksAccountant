@@ -51,6 +51,15 @@
 		B10070 /* BusinessInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10070 /* BusinessInfoView.swift */; };
 		B10071 /* BusinessInfoStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10071 /* BusinessInfoStoreWrapper.swift */; };
 		B10072 /* InvoiceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10072 /* InvoiceView.swift */; };
+		B10073 /* IngredientsListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10073 /* IngredientsListView.swift */; };
+		B10074 /* IngredientsListStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10074 /* IngredientsListStoreWrapper.swift */; };
+		B10075 /* IngredientFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10075 /* IngredientFormView.swift */; };
+		B10076 /* IngredientFormStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10076 /* IngredientFormStoreWrapper.swift */; };
+		B10077 /* IngredientPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10077 /* IngredientPickerSheet.swift */; };
+		B10078 /* ProductionPlanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10078 /* ProductionPlanView.swift */; };
+		B10079 /* ProductionPlanStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10079 /* ProductionPlanStoreWrapper.swift */; };
+		B10080 /* ProductionCapacityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10080 /* ProductionCapacityView.swift */; };
+		B10081 /* ProductionCapacityStoreWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10081 /* ProductionCapacityStoreWrapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -98,6 +107,15 @@
 		A10070 /* BusinessInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessInfoView.swift; sourceTree = "<group>"; };
 		A10071 /* BusinessInfoStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BusinessInfoStoreWrapper.swift; sourceTree = "<group>"; };
 		A10072 /* InvoiceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceView.swift; sourceTree = "<group>"; };
+		A10073 /* IngredientsListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsListView.swift; sourceTree = "<group>"; };
+		A10074 /* IngredientsListStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientsListStoreWrapper.swift; sourceTree = "<group>"; };
+		A10075 /* IngredientFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormView.swift; sourceTree = "<group>"; };
+		A10076 /* IngredientFormStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientFormStoreWrapper.swift; sourceTree = "<group>"; };
+		A10077 /* IngredientPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngredientPickerSheet.swift; sourceTree = "<group>"; };
+		A10078 /* ProductionPlanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionPlanView.swift; sourceTree = "<group>"; };
+		A10079 /* ProductionPlanStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionPlanStoreWrapper.swift; sourceTree = "<group>"; };
+		A10080 /* ProductionCapacityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionCapacityView.swift; sourceTree = "<group>"; };
+		A10081 /* ProductionCapacityStoreWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductionCapacityStoreWrapper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -175,6 +193,10 @@
 				A10041 /* PurchasesListStoreWrapper.swift */,
 				A10042 /* PurchaseFormView.swift */,
 				A10043 /* PurchaseFormStoreWrapper.swift */,
+				A10078 /* ProductionPlanView.swift */,
+				A10079 /* ProductionPlanStoreWrapper.swift */,
+				A10080 /* ProductionCapacityView.swift */,
+				A10081 /* ProductionCapacityStoreWrapper.swift */,
 			);
 			path = Purchases;
 			sourceTree = "<group>";
@@ -193,6 +215,11 @@
 				A10052 /* ClientFormStoreWrapper.swift */,
 				A10070 /* BusinessInfoView.swift */,
 				A10071 /* BusinessInfoStoreWrapper.swift */,
+				A10073 /* IngredientsListView.swift */,
+				A10074 /* IngredientsListStoreWrapper.swift */,
+				A10075 /* IngredientFormView.swift */,
+				A10076 /* IngredientFormStoreWrapper.swift */,
+				A10077 /* IngredientPickerSheet.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -378,6 +405,15 @@
 				B10070 /* BusinessInfoView.swift in Sources */,
 				B10071 /* BusinessInfoStoreWrapper.swift in Sources */,
 				B10072 /* InvoiceView.swift in Sources */,
+				B10073 /* IngredientsListView.swift in Sources */,
+				B10074 /* IngredientsListStoreWrapper.swift in Sources */,
+				B10075 /* IngredientFormView.swift in Sources */,
+				B10076 /* IngredientFormStoreWrapper.swift in Sources */,
+				B10077 /* IngredientPickerSheet.swift in Sources */,
+				B10078 /* ProductionPlanView.swift in Sources */,
+				B10079 /* ProductionPlanStoreWrapper.swift in Sources */,
+				B10080 /* ProductionCapacityView.swift in Sources */,
+				B10081 /* ProductionCapacityStoreWrapper.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

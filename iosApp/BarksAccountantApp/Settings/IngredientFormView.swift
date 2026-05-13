@@ -1,23 +1,23 @@
 import SwiftUI
 import Shared
 
-struct ProductFormView: View {
+struct IngredientFormView: View {
     let serviceLocator: ServiceLocator
-    let productId: String?
+    let ingredientId: String?
     var onSaved: () -> Void
 
-    @State private var store: ProductFormStoreWrapper
+    @State private var store: IngredientFormStoreWrapper
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
 
-    init(serviceLocator: ServiceLocator, productId: String?, onSaved: @escaping () -> Void) {
+    init(serviceLocator: ServiceLocator, ingredientId: String?, onSaved: @escaping () -> Void) {
         self.serviceLocator = serviceLocator
-        self.productId = productId
+        self.ingredientId = ingredientId
         self.onSaved = onSaved
-        _store = State(initialValue: ProductFormStoreWrapper(
-            productRepository: serviceLocator.productRepository,
-            ingredientRepository: serviceLocator.ingredientRepository
+        _store = State(initialValue: IngredientFormStoreWrapper(
+            ingredientRepository: serviceLocator.ingredientRepository,
+            productRepository: serviceLocator.productRepository
         ))
     }
 
@@ -49,6 +49,21 @@ struct ProductFormView: View {
         colorScheme == .dark ? Color.white.opacity(0.10) : Color.black.opacity(0.06)
     }
 
+    // MARK: - Units
+
+    private let allUnits: [IngredientUnit] = [.grams, .kilograms, .milliliters, .liters, .units]
+
+    private func label(_ u: IngredientUnit) -> String {
+        switch u {
+        case .grams: return "gramos"
+        case .kilograms: return "kilos"
+        case .milliliters: return "mililitros"
+        case .liters: return "litros"
+        case .units: return "unidades"
+        default: return u.symbol
+        }
+    }
+
     var body: some View {
         ZStack {
             screenBackground
@@ -57,37 +72,33 @@ struct ProductFormView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     infoCard
-                    ingredientsCard
                     saveCard
                     deleteCard
                 }
                 .padding(.horizontal, 16)
                 .padding(.vertical, 12)
             }
-            .navigationTitle(store.isEditing ? "Editar Producto" : "Nuevo Producto")
+            .navigationTitle(store.isEditing ? "Editar Ingrediente" : "Nuevo Ingrediente")
         }
-        .alert("Eliminar producto", isPresented: Binding(
+        .alert("Eliminar ingrediente", isPresented: Binding(
             get: { store.showDeleteConfirm },
             set: { if !$0 { store.dismissDelete() } }
         )) {
             Button("Cancelar", role: .cancel) { store.dismissDelete() }
             Button("Eliminar", role: .destructive) { store.confirmDelete() }
         } message: {
-            Text("¿Estás seguro de que quieres eliminar este producto?")
+            Text("¿Estás seguro de que quieres eliminar este ingrediente?")
         }
-        .sheet(isPresented: Binding(
-            get: { store.showIngredientPicker },
-            set: { if !$0 { store.dismissIngredientPicker() } }
+        .alert("No se puede eliminar", isPresented: Binding(
+            get: { !store.deleteBlockedBy.isEmpty },
+            set: { if !$0 { store.dismissDeleteBlocked() } }
         )) {
-            IngredientPickerSheet(
-                ingredients: store.availableIngredients.filter { avail in
-                    !store.productIngredients.contains(where: { $0.ingredientId == avail.id })
-                },
-                onSelected: { store.ingredientPicked($0) }
-            )
+            Button("Aceptar") { store.dismissDeleteBlocked() }
+        } message: {
+            Text("Este ingrediente se usa en: \(store.deleteBlockedBy.joined(separator: ", ")). Elimínalo de esos productos primero.")
         }
         .onAppear {
-            store.start(productId: productId)
+            store.start(ingredientId: ingredientId)
         }
         .onChange(of: store.savedSuccessfully) { _, saved in
             if saved {
@@ -116,7 +127,7 @@ struct ProductFormView: View {
                         .foregroundStyle(secondaryText)
 
                     TextField(
-                        "Ej: Paleta Sandía",
+                        "Ej: Azúcar",
                         text: Binding(
                             get: { store.name },
                             set: { store.nameChanged($0) }
@@ -138,116 +149,47 @@ struct ProductFormView: View {
                     )
                 }
 
-                // Price
+                // Unit
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("Precio")
+                    Text("Unidad")
                         .font(.omnes(13))
                         .foregroundStyle(secondaryText)
 
-                    HStack(spacing: 8) {
-                        Text("€")
-                            .font(.omnes(17, weight: .semiBold))
-                            .foregroundStyle(secondaryText)
-
-                        TextField(
-                            "0.00",
-                            text: Binding(
-                                get: { store.price },
-                                set: { store.priceChanged($0) }
-                            )
-                        )
-                        .keyboardType(.decimalPad)
-                        .font(.omnes(17, weight: .semiBold).monospacedDigit())
-                        .foregroundStyle(primaryText)
-                    }
-                    .padding(.horizontal, 12)
-                    .frame(height: 48)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .fill(fieldBackground)
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(store.price.isEmpty ? Color.barksRed.opacity(0.45) : fieldBorder, lineWidth: 1)
-                    )
-                }
-            }
-        }
-    }
-
-    private var ingredientsCard: some View {
-        card(title: "Ingredientes") {
-            VStack(alignment: .leading, spacing: 12) {
-                if store.productIngredients.isEmpty {
-                    Text("No hay ingredientes añadidos")
-                        .font(.omnes(14))
-                        .foregroundStyle(secondaryText)
-                } else {
-                    ForEach(Array(store.productIngredients.enumerated()), id: \.offset) { pair in
-                        let idx = pair.offset
-                        let ing = pair.element
-                        HStack(spacing: 10) {
-                            Text(ing.ingredientName)
-                                .font(.omnes(15, weight: .semiBold))
-                                .foregroundStyle(primaryText)
-                                .layoutPriority(1)
-
-                            Spacer(minLength: 8)
-
-                            TextField(
-                                "0",
-                                text: Binding(
-                                    get: {
-                                        idx < store.ingredientQuantityTexts.count
-                                        ? store.ingredientQuantityTexts[idx]
-                                        : ""
-                                    },
-                                    set: { store.ingredientQuantityChanged(index: idx, text: $0) }
-                                )
-                            )
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                            .font(.omnes(15, weight: .semiBold).monospacedDigit())
-                            .foregroundStyle(primaryText)
-                            .frame(width: 70, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .fill(fieldBackground)
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                    .stroke(fieldBorder, lineWidth: 1)
-                            )
-
-                            Text(ing.unit.symbol)
-                                .font(.omnes(13, weight: .semiBold))
-                                .foregroundStyle(secondaryText)
-                                .frame(minWidth: 26, alignment: .leading)
-
-                            Button {
-                                store.ingredientRemoved(index: idx)
-                            } label: {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(Color.barksRed)
+                    Menu {
+                        ForEach(allUnits, id: \.self) { u in
+                            Button("\(u.symbol) — \(label(u))") {
+                                store.unitChanged(u)
                             }
-                            .buttonStyle(.borderless)
                         }
+                    } label: {
+                        HStack {
+                            Text("\(store.unit.symbol) — \(label(store.unit))")
+                                .font(.omnes(17, weight: .semiBold))
+                                .foregroundStyle(primaryText)
+                            Spacer()
+                            Image(systemName: "chevron.up.chevron.down")
+                                .font(.system(size: 12, weight: .semibold))
+                                .foregroundStyle(secondaryText)
+                        }
+                        .padding(.horizontal, 12)
+                        .frame(height: 48)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(fieldBackground)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke(fieldBorder, lineWidth: 1)
+                        )
                     }
-                }
+                    .disabled(store.isEditing)
+                    .opacity(store.isEditing ? 0.6 : 1.0)
 
-                Button {
-                    store.addIngredientTapped()
-                } label: {
-                    Label("Añadir ingrediente", systemImage: "plus")
-                        .font(.omnes(15, weight: .semiBold))
-                }
-                .disabled(store.availableIngredients.isEmpty)
-                .opacity(store.availableIngredients.isEmpty ? 0.5 : 1.0)
-
-                if store.availableIngredients.isEmpty {
-                    Text("Créalos en Settings → Ingredientes")
-                        .font(.omnes(12))
-                        .foregroundStyle(secondaryText)
+                    if store.isEditing {
+                        Text("La unidad no se puede cambiar")
+                            .font(.omnes(12))
+                            .foregroundStyle(secondaryText)
+                    }
                 }
             }
         }
@@ -267,7 +209,7 @@ struct ProductFormView: View {
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
                 }
-                .buttonStyle(PrimaryActionButtonStyle(tint: .barksRed))
+                .buttonStyle(IngredientPrimaryActionButtonStyle(tint: .barksRed))
                 .disabled(!store.canSave || store.isSaving)
                 .opacity((!store.canSave || store.isSaving) ? 0.6 : 1.0)
 
@@ -285,10 +227,10 @@ struct ProductFormView: View {
     private var deleteCard: some View {
         if store.isEditing {
             card(title: nil) {
-                Button("Eliminar producto") {
+                Button("Eliminar ingrediente") {
                     store.deleteTapped()
                 }
-                .buttonStyle(DestructiveActionButtonStyle(tint: .barksRed))
+                .buttonStyle(IngredientDestructiveActionButtonStyle(tint: .barksRed))
             }
         }
     }
@@ -309,6 +251,7 @@ struct ProductFormView: View {
             content()
         }
         .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 18, style: .continuous)
                 .fill(cardBackground)
@@ -328,7 +271,7 @@ struct ProductFormView: View {
 
 // MARK: - Button Styles
 
-private struct PrimaryActionButtonStyle: ButtonStyle {
+private struct IngredientPrimaryActionButtonStyle: ButtonStyle {
     let tint: Color
 
     func makeBody(configuration: Configuration) -> some View {
@@ -340,7 +283,7 @@ private struct PrimaryActionButtonStyle: ButtonStyle {
     }
 }
 
-private struct DestructiveActionButtonStyle: ButtonStyle {
+private struct IngredientDestructiveActionButtonStyle: ButtonStyle {
     let tint: Color
 
     func makeBody(configuration: Configuration) -> some View {
